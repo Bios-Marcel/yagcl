@@ -1,9 +1,7 @@
 package yagcl
 
 import (
-	"encoding/json"
 	"errors"
-	"os"
 )
 
 var (
@@ -37,70 +35,6 @@ type Source interface {
 	// for this source. This allows having one generic key, but overrides for
 	// specific sources.
 	KeyTag() string
-}
-
-type envSource struct {
-	prefix string
-}
-
-// EventSource creates a source for environment variables of the current
-// process.
-func EventSource() *envSource {
-	return &envSource{}
-}
-
-// Prefix specified the prefixes expected in environment variable keys.
-// For example "PREFIX_FIELD_NAME".
-func (s *envSource) Prefix(prefix string) *envSource {
-	s.prefix = prefix
-	return s
-}
-
-// KeyTag implements Source.Key.
-func (s *envSource) KeyTag() string {
-	return "env"
-}
-
-// Parse implements Source.Parse.
-func (s *envSource) Parse(configurationStruct any) error {
-	return nil
-}
-
-type jsonSource struct {
-	must bool
-	path string
-}
-
-// JSONSource creates a source for a JSON file.
-func JSONSource(path string) *jsonSource {
-	return &jsonSource{path: path}
-}
-
-// Must indicates that this Source will return an error during parsing if no
-// parsable data can be found.
-func (s *jsonSource) Must() *jsonSource {
-	s.must = true
-	return s
-}
-
-// KeyTag implements Source.Key.
-func (s *jsonSource) KeyTag() string {
-	return "json"
-}
-
-// Parse implements Source.Parse.
-func (s *jsonSource) Parse(configurationStruct any) error {
-	file, errOpen := os.OpenFile(s.path, os.O_RDONLY, os.ModePerm)
-	if os.IsNotExist(errOpen) {
-		if s.must {
-			return ErrSourceNotFound
-		}
-		return nil
-	}
-
-	return json.
-		NewDecoder(file).
-		Decode(configurationStruct)
 }
 
 // AddSource adds a single source to read configuration from. This method can

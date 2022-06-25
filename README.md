@@ -20,6 +20,7 @@ type Configuration struct {
 	Post        int    `json:"port" required:"true"`
 	KafkaServer struct {
 		//Alternatively you can define them explicitly.
+		Host              string        `key:"host" default:"localhost" required:"true"`
 		Host              string        `json:"host" env:"HOST" default:"localhost" required:"true"`
 		Port              int           `json:"port" env:"PORT" default:"1234" required:"true"`
 		ConnectionTimeout time.Duration `json:"connection_timeout" env:"CONNECTION_TIMEOUT" default:"10s" required:"false"`
@@ -33,9 +34,9 @@ func LoadConfig() error {
 	var configuration Configuration
 	err := yagcl.
 		//This allows ordering when using override, so you can have something like this.
-		AddSource(yagcl.JSONSource("/etc/myapp/config.json").Must()).
-		AddSource(yagcl.EnvSource().Prefix("MY_APP_")).
-		AddSource(yagcl.JSONSource("~/.config/config.json")).
+		AddSource(json.Source("/etc/myapp/config.json").Must()).
+		AddSource(env.Source().Prefix("MY_APP_")).
+		AddSource(json.Source("~/.config/config.json")).
 		AllowOverride().
 		Parse(&configuration)
 	return err
