@@ -7,30 +7,32 @@ import (
 	"github.com/Bios-Marcel/yagcl"
 )
 
-type source struct {
+// DO NOT CREATE INSTANCES MANUALLY, THIS IS ONLY PUBLIC IN ORDER FOR GODOC
+// TO RENDER AVAILABLE FUNCTIONS.
+type JSONSource struct {
 	must bool
 	path string
 }
 
 // Source creates a source for a JSON file.
-func Source(path string) *source {
-	return &source{path: path}
+func Source(path string) *JSONSource {
+	return &JSONSource{path: path}
 }
 
 // Must indicates that this Source will return an error during parsing if no
 // parsable data can be found.
-func (s *source) Must() *source {
+func (s *JSONSource) Must() *JSONSource {
 	s.must = true
 	return s
 }
 
 // KeyTag implements Source.Key.
-func (s *source) KeyTag() string {
+func (s *JSONSource) KeyTag() string {
 	return "json"
 }
 
 // Parse implements Source.Parse.
-func (s *source) Parse(configurationStruct any) error {
+func (s *JSONSource) Parse(configurationStruct any) error {
 	file, errOpen := os.OpenFile(s.path, os.O_RDONLY, os.ModePerm)
 	if os.IsNotExist(errOpen) {
 		if s.must {
