@@ -15,25 +15,53 @@ An example struct may look something like this:
 
 ```go
 type Configuration struct {
-	Host        string `json:"host" env:"HOST" required:"true"`
-	Post        int    `json:"port" env:"PORT" required:"true"`
+	//The environment variable names are the same, but uppercased.
+	Host        string `json:"host" required:"true"`
+	Post        int    `json:"port" required:"true"`
 	KafkaServer struct {
-		Host              string `json:"host" env:"HOST" default:"localhost" required:"true"`
-		Port              int    `json:"port" env:"PORT" default:"1234" required:"true"`
-		ConnectionTimeout int    `json:"connection_timeout" env:"CONNECTION_TIMEOUT" default:"10s" required:"false"`
+		//Alternatively you can define them explicitly.
+		Host              string        `json:"host" env:"HOST" default:"localhost" required:"true"`
+		Port              int           `json:"port" env:"PORT" default:"1234" required:"true"`
+		ConnectionTimeout time.Duration `json:"connection_timeout" env:"CONNECTION_TIMEOUT" default:"10s" required:"false"`
+		//Nested structs are an exception, as we need a prefix for each
+		//struct to prevent clashing. If no prefix has been defined, it'll
+		//be inferred from the fieldname.
 	} `json:"kafka" env_prefix:"KAFKA_"`
 }
 
 func LoadConfig() error {
 	var configuration Configuration
 	err := yagcl.
-		ParseJSON("config.json").
-		ParseEnv().
-		EnvPrefix("MYAPP").
-		AllowOverride(true).
+		//This allows ordering when using override, so you can have something like this.
+		AddSource(yagcl.JSONSource("/etc/myapp/config.json").Must()).
+		AddSource(yagcl.EnvSource().Prefix("MY_APP_")).
+		AddSource(yagcl.JSONSource("~/.config/config.json")).
+		AllowOverride().
 		Parse(&configuration)
 	return err
 }
+```
+
+The configuration loaded by this could look something like this:
+
+```json
+{
+	"host": "localhost",
+	"port": 1234,
+	"kafka": {
+		"host": "123.123.123.123",
+		"port": 9092,
+		"connectionTimeout": "10s"
+	}
+}
+```
+
+```env
+MY_APP_HOST=localhost
+MY_APP_PORT=1234
+MY_APP_KAFKA_HOST=123.123.123.123
+MY_APP_KAFKA_PORT=9092
+MY_APP_KAFKA_CONNECTION_TIMEOUT=10s
 ```
 
 If there's already a library that does ALL of this, feel free to tell me and I'll
