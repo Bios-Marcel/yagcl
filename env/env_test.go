@@ -134,6 +134,39 @@ func Test_Parse_String_Whitespace(t *testing.T) {
 	}
 }
 
+func Test_Parse_Bool_Valid(t *testing.T) {
+	type configuration struct {
+		True       bool `key:"true"`
+		False      bool `key:"false"`
+		TrueUpper  bool `key:"true_upper"`
+		FalseUpper bool `key:"false_upper"`
+	}
+
+	defer setEnvTemporarily("TRUE", "true")()
+	defer setEnvTemporarily("FALSE", "false")()
+	defer setEnvTemporarily("TRUE_UPPER", "TRUE")()
+	defer setEnvTemporarily("FALSE_UPPER", "FALSE")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, true, c.True)
+		assert.Equal(t, false, c.False)
+		assert.Equal(t, true, c.TrueUpper)
+		assert.Equal(t, false, c.FalseUpper)
+	}
+}
+
+func Test_Parse_Bool_Invalid(t *testing.T) {
+	type configuration struct {
+		Bool bool `key:"bool"`
+	}
+
+	defer setEnvTemporarily("BOOL", "cheese")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrParseValue)
+}
+
 const maxUint = ^uint(0)
 const minUint = uint(0)
 const maxInt = int(maxUint >> 1)

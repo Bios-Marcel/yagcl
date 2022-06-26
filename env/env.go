@@ -150,8 +150,8 @@ func (s *EnvSource) extractEnvKey(value reflect.Value, structField reflect.Struc
 
 func parseValue(structField reflect.StructField, envValue string) (reflect.Value, error) {
 	var parsed reflect.Value
-	kind := structField.Type
-	switch kind.Kind() {
+	fieldType := structField.Type
+	switch fieldType.Kind() {
 	case reflect.String:
 		{
 			parsed = reflect.ValueOf(envValue)
@@ -160,17 +160,28 @@ func parseValue(structField reflect.StructField, envValue string) (reflect.Value
 		{
 			value, errParse := strconv.ParseInt(envValue, 10, int(structField.Type.Size())*8)
 			if errParse != nil {
-				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, kind.String(), structField.Name, yagcl.ErrParseValue)
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
 			}
-			parsed = reflect.ValueOf(value).Convert(kind)
+			parsed = reflect.ValueOf(value).Convert(fieldType)
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		{
 			value, errParse := strconv.ParseUint(envValue, 10, int(structField.Type.Size())*8)
 			if errParse != nil {
-				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, kind.String(), structField.Name, yagcl.ErrParseValue)
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
 			}
-			parsed = reflect.ValueOf(value).Convert(kind)
+			parsed = reflect.ValueOf(value).Convert(fieldType)
+		}
+	case reflect.Bool:
+		{
+			boolValue := strings.EqualFold(envValue, "true")
+			// FIXME Allow enabling lax-behaviour?
+			// Instead of assuming everything != true equals false, we assume
+			// that the value is unintentionally wrong and return an error.
+			if !boolValue && !strings.EqualFold(envValue, "false") {
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as a '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
+			}
+			parsed = reflect.ValueOf(boolValue)
 		}
 	case reflect.Struct:
 		{
