@@ -1,6 +1,7 @@
 package env
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -372,6 +373,59 @@ func Test_Parse_Uint64_Valid(t *testing.T) {
 		assert.Equal(t, minUint64, c.Min)
 		assert.Equal(t, maxUint64, c.Max)
 	}
+}
+
+func Test_Parse_Float32_Valid(t *testing.T) {
+	type configuration struct {
+		Float float32 `key:"float"`
+	}
+
+	var floatValue float32 = 5.5
+	bytes, _ := json.Marshal(floatValue)
+	fmt.Println(string(bytes))
+	defer setEnvTemporarily("FLOAT", string(bytes))()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, floatValue, c.Float)
+	}
+}
+
+func Test_Parse_Float64_Valid(t *testing.T) {
+	type configuration struct {
+		Float float64 `key:"float"`
+	}
+
+	var floatValue float64 = 5.5
+	bytes, _ := json.Marshal(floatValue)
+	defer setEnvTemporarily("FLOAT", string(bytes))()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, floatValue, c.Float)
+	}
+}
+
+func Test_Parse_Float32_Invalid(t *testing.T) {
+	type configuration struct {
+		Float float32 `key:"float"`
+	}
+
+	defer setEnvTemporarily("FLOAT", "5.5no float here")
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrParseValue)
+}
+
+func Test_Parse_Float64_Invalid(t *testing.T) {
+	type configuration struct {
+		Float float64 `key:"float"`
+	}
+
+	defer setEnvTemporarily("FLOAT", "5.5no float here")
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
 func Test_Parse_Int_Invalid(t *testing.T) {

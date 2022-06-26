@@ -1,6 +1,7 @@
 package env
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -158,7 +159,7 @@ func parseValue(structField reflect.StructField, envValue string) (reflect.Value
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		{
-			value, errParse := strconv.ParseInt(envValue, 10, int(structField.Type.Size())*8)
+			value, errParse := strconv.ParseInt(envValue, 10, int(fieldType.Size())*8)
 			if errParse != nil {
 				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
 			}
@@ -166,8 +167,18 @@ func parseValue(structField reflect.StructField, envValue string) (reflect.Value
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		{
-			value, errParse := strconv.ParseUint(envValue, 10, int(structField.Type.Size())*8)
+			value, errParse := strconv.ParseUint(envValue, 10, int(fieldType.Size())*8)
 			if errParse != nil {
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
+			}
+			parsed = reflect.ValueOf(value).Convert(fieldType)
+		}
+	case reflect.Float32, reflect.Float64:
+		{
+			// We use the stdlib json encoder here, since there seems to be
+			// special behaviour.
+			var value float64
+			if errParse := json.Unmarshal([]byte(envValue), &value); errParse != nil {
 				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
 			}
 			parsed = reflect.ValueOf(value).Convert(fieldType)
