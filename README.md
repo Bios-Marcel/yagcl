@@ -56,9 +56,10 @@ An example configuration struct may look something like this:
 
 ```go
 type Configuration struct {
-	//The environment variable names are the same, but uppercased.
-	Host        string `json:"host" required:"true"`
-	Post        int    `json:"port" required:"true"`
+	// The `key` here is used to define the JSON name for example. But the
+	// environment variable names are the same, but uppercased.
+	Host        string `key:"host" required:"true"`
+	Post        int    `key:"port" required:"true"`
 	// If you don't wish to export a field, you have to ignore it.
 	// If it isn't ignored and doesn't have an explicit key, you'll
 	// get an error, as this indicates a bug. The reason we don't
