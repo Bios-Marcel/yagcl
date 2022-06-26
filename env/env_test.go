@@ -161,6 +161,63 @@ func Test_Parse_PointerOfDoom(t *testing.T) {
 	}
 }
 
+func Test_Parse_SinglePointerToStruct(t *testing.T) {
+	type substruct struct {
+		FieldC string `key:"field_c"`
+	}
+	type configuration struct {
+		FieldA string     `key:"field_a"`
+		FieldB *substruct `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
+	var c configuration
+	c.FieldB = &substruct{}
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content c", (*c.FieldB).FieldC)
+	}
+}
+
+func Test_Parse_SingleNilPointerToStruct(t *testing.T) {
+	type substruct struct {
+		FieldC string `key:"field_c"`
+	}
+	type configuration struct {
+		FieldA string     `key:"field_a"`
+		FieldB *substruct `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content c", (*c.FieldB).FieldC)
+	}
+}
+
+func Test_Parse_PointerOfDoomToStruct(t *testing.T) {
+	type configuration struct {
+		FieldA string `key:"field_a"`
+		FieldB **************struct {
+			FieldC string `key:"field_c"`
+		} `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content c", (**************c.FieldB).FieldC)
+	}
+}
+
 func Test_Parse_String_Whitespace(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
