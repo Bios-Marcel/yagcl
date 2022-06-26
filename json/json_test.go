@@ -12,12 +12,12 @@ func Test_JSONSource_InterfaceCompliance(t *testing.T) {
 }
 
 func Test_Parse_JSON_Simple(t *testing.T) {
-	type Configuration struct {
+	type configuration struct {
 		FieldA string `key:"field_a"`
 		FieldB string `json:"field_b"`
 	}
-	var c Configuration
-	err := yagcl.New[Configuration]().
+	var c configuration
+	err := yagcl.New[configuration]().
 		AddSource(Source("./test.json").Must()).
 		Parse(&c)
 	assert.NoError(t, err)

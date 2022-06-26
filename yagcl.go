@@ -11,7 +11,30 @@ var (
 	// ErrSourceNotFound implies that a source has been added, but for example
 	// the file it is supposed to read can't be found.
 	ErrSourceNotFound = errors.New("the source could not find its target")
+
+	// ErrExportedFieldMissingKey implies that a field is exported, but
+	// doesn't define the key required for parsing it from a source. This
+	// error can be omitted by setting `ignore:"true"`
+	ErrExportedFieldMissingKey = errors.New("exported field is missing key definition")
+	// ErrValueNotSet implies that no value could be found for a field, even
+	// though it is required. The reason is either that there's no value, no
+	// default value or a user error has occurred (e.g. a typo in the key).
+	ErrValueNotSet = errors.New("required not set and no non-zero default value was found")
+	// ErrParseValue implies that the value we attempted to parse is not in
+	// the correct format to be assigned to its corresponding field. This is
+	// most likely a user error.
+	ErrParseValue = errors.New("value not parsable as type specified by field")
+	// ErrUnsupportedFieldType implies that this library does NOT YET support
+	// a certain field type.
+	ErrUnsupportedFieldType = errors.New("unsupported field type")
 )
+
+// DefaultKeyTagName is the go annotation key name for specifying the default
+// fieldname. The value is to be expected to use only lowercase letters and
+// underscores, as this is deemed the best default for readability. Sources
+// can then convert this to kebapCase, UPPER_CASE or whatever else the put
+// their faith in.
+const DefaultKeyTagName = "key"
 
 type YAGCL[T any] struct {
 	sources       []Source
@@ -35,6 +58,17 @@ type Source interface {
 	// for this source. This allows having one generic key, but overrides for
 	// specific sources.
 	KeyTag() string
+}
+
+// FIXME DELETE?
+// KeyTagConverter is an optional interface sources can implement if they
+// either don't want to offer their own key tag or make use if the simplicity
+// of only having to define one tag for multiple source types.
+type KeyTagConverter interface {
+	// ConvertKeyTag takes a keys value, for example the "test" in "key=test"
+	// and converts it to a different format, for example all upper-cased
+	// "TEST".
+	ConvertKeyTag(string) string
 }
 
 // AddSource adds a single source to read configuration from. This method can
