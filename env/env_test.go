@@ -41,9 +41,10 @@ func Test_Parse_KeyTags(t *testing.T) {
 	err := yagcl.New[configuration]().
 		AddSource(Source()).
 		Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, "content a", c.FieldA)
-	assert.Equal(t, "content b", c.FieldB)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content b", c.FieldB)
+	}
 }
 
 func Test_Parse_Prefix(t *testing.T) {
@@ -57,11 +58,12 @@ func Test_Parse_Prefix(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source().Prefix("TEST_")).
+		AddSource(Source().Prefix("TEST")).
 		Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, "content a", c.FieldA)
-	assert.Equal(t, "content b", c.FieldB)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content b", c.FieldB)
+	}
 }
 func Test_Parse_KeyValueConverter(t *testing.T) {
 	type configuration struct {
@@ -82,9 +84,10 @@ func Test_Parse_KeyValueConverter(t *testing.T) {
 				}),
 		).
 		Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, "content a", c.FieldA)
-	assert.Equal(t, "content b", c.FieldB)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content b", c.FieldB)
+	}
 }
 
 func Test_Parse_String_Valid(t *testing.T) {
@@ -95,8 +98,26 @@ func Test_Parse_String_Valid(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, "content a", c.FieldA)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+	}
+}
+func Test_Parse_Struct_Valid(t *testing.T) {
+	type configuration struct {
+		FieldA string `key:"field_a"`
+		FieldB struct {
+			FieldC string `key:"field_c"`
+		} `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content c", c.FieldB.FieldC)
+	}
 }
 
 func Test_Parse_String_Whitespace(t *testing.T) {
@@ -107,8 +128,9 @@ func Test_Parse_String_Whitespace(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "   ")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, "   ", c.FieldA)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "   ", c.FieldA)
+	}
 }
 
 func Test_Parse_Int_Valid(t *testing.T) {
@@ -119,8 +141,9 @@ func Test_Parse_Int_Valid(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "1")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, 1, c.FieldA)
+	if assert.NoError(t, err) {
+		assert.Equal(t, 1, c.FieldA)
+	}
 }
 
 func Test_Parse_Int_Invalid(t *testing.T) {
@@ -144,8 +167,9 @@ func Test_Parse_DefaultValue_String(t *testing.T) {
 		New[configuration]().
 		AddSource(Source()).
 		Parse(&c)
-	assert.NoError(t, err)
-	assert.Equal(t, "i am the default", c.FieldA)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "i am the default", c.FieldA)
+	}
 }
 
 func Test_Parse_MissingFieldKey(t *testing.T) {
@@ -171,8 +195,9 @@ func Test_Parse_IgnoreField1(t *testing.T) {
 		New[configuration]().
 		AddSource(Source()).
 		Parse(&c)
-	assert.NoError(t, err)
-	assert.Empty(t, c.FieldA)
+	if assert.NoError(t, err) {
+		assert.Empty(t, c.FieldA)
+	}
 }
 
 func Test_Parse_RequiredValue_Missing_String(t *testing.T) {

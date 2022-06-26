@@ -73,7 +73,7 @@ type Configuration struct {
 		//Nested structs are an exception, as we need a prefix for each
 		//struct to prevent clashing. If no prefix has been defined, it'll
 		//be inferred from the fieldname.
-	} `json:"kafka" env_prefix:"KAFKA_"`
+	} `json:"kafka"`
 }
 ```
 
