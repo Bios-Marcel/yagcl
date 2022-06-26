@@ -26,7 +26,7 @@ for an ignored field has no effect and will therefore result in an error:
 
 ```go
 type Configuration struct {
-	Field string `key="field" ignore="true"`
+	Field string `key:"field" ignore:"true"`
 }
 ```
 
@@ -58,23 +58,25 @@ An example configuration struct may look something like this:
 type Configuration struct {
 	// The `key` here is used to define the JSON name for example. But the
 	// environment variable names are the same, but uppercased.
-	Host        string `key:"host" required:"true"`
-	Post        int    `key:"port" required:"true"`
+	Host string `key:"host" required:"true"`
+	Post int    `key:"port" required:"true"`
 	// If you don't wish to export a field, you have to ignore it.
 	// If it isn't ignored and doesn't have an explicit key, you'll
 	// get an error, as this indicates a bug. The reason we don't
 	// auto-generate a key is that this could result in unstable promises
 	// as the variable name could change and break loading of old files.
-	DontLoad    int    `ignore:"true"`
-	KafkaServer struct {
-		//Alternatively you can define them explicitly. The same goes for json names.
-		Host              string        `json:"host" env:"HOST" default:"localhost" required:"true"`
-		Port              int           `json:"port" env:"PORT" default:"1234" required:"true"`
-		ConnectionTimeout time.Duration `json:"connection_timeout" env:"CONNECTION_TIMEOUT" default:"10s" required:"false"`
-		//Nested structs are an exception, as we need a prefix for each
-		//struct to prevent clashing. If no prefix has been defined, it'll
-		//be inferred from the fieldname.
-	} `key:"kafka"`
+	DontLoad    int               `ignore:"true"`
+	KafkaServer KafkaServerConfig `key:"kafka"`
+}
+
+type KafkaServerConfig struct {
+	//Alternatively you can define them explicitly. The same goes for json names.
+	Host              string        `json:"host" env:"HOST" required:"true"`
+	Port              int           `json:"port" env:"PORT" required:"true"`
+	ConnectionTimeout time.Duration `json:"connection_timeout" env:"CONNECTION_TIMEOUT" required:"false"`
+	//Nested structs are an exception, as we need a prefix for each
+	//struct to prevent clashing. If no prefix has been defined, it'll
+	//be inferred from the fieldname.
 }
 ```
 
@@ -83,7 +85,14 @@ your configuration files might lie:
 
 ```go
 func LoadConfig() error {
-	var configuration Configuration
+	//Defaults should simply be defined on struct creation.
+	configuration := Configuration{
+		KafkaServer: KafkaServerConfig{
+			Host:              "localhost",
+			Port:              1234,
+			ConnectionTimeout: time.Second * 10,
+		},
+	}
 	err := yagcl.
 		//This allows ordering when using override, so you can have something like this.
 		AddSource(json.Source("/etc/myapp/config.json").Must()).

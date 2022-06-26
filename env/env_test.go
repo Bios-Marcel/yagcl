@@ -301,7 +301,7 @@ func Test_Parse_Complex64_Unsupported(t *testing.T) {
 		FieldA complex64 `key:"field_a"`
 	}
 
-	defer setEnvTemporarily("field_a", "value")()
+	defer setEnvTemporarily("FIELD_A", "value")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
@@ -312,7 +312,7 @@ func Test_Parse_Complex128_Unsupported(t *testing.T) {
 		FieldA complex128 `key:"field_a"`
 	}
 
-	defer setEnvTemporarily("field_a", "value")()
+	defer setEnvTemporarily("FIELD_A", "value")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
@@ -510,7 +510,6 @@ func Test_Parse_Float32_Valid(t *testing.T) {
 
 	var floatValue float32 = 5.5
 	bytes, _ := json.Marshal(floatValue)
-	fmt.Println(string(bytes))
 	defer setEnvTemporarily("FLOAT", string(bytes))()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
@@ -539,7 +538,7 @@ func Test_Parse_Float32_Invalid(t *testing.T) {
 		Float float32 `key:"float"`
 	}
 
-	defer setEnvTemporarily("FLOAT", "5.5no float here")
+	defer setEnvTemporarily("FLOAT", "5.5no float here")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
@@ -550,7 +549,7 @@ func Test_Parse_Float64_Invalid(t *testing.T) {
 		Float float64 `key:"float"`
 	}
 
-	defer setEnvTemporarily("FLOAT", "5.5no float here")
+	defer setEnvTemporarily("FLOAT", "5.5no float here")()
 	var c configuration
 	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
@@ -580,10 +579,12 @@ func Test_Parse_Uint_Invalid(t *testing.T) {
 
 func Test_Parse_DefaultValue_String(t *testing.T) {
 	type configuration struct {
-		FieldA string `key:"field_a" default:"i am the default"`
+		FieldA string `key:"field_a"`
 	}
 
-	var c configuration
+	c := configuration{
+		FieldA: "i am the default",
+	}
 	err := yagcl.
 		New[configuration]().
 		AddSource(Source()).
@@ -591,6 +592,40 @@ func Test_Parse_DefaultValue_String(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Equal(t, "i am the default", c.FieldA)
 	}
+}
+
+func Test_Parse_DefaultValue_Int(t *testing.T) {
+	type configuration struct {
+		FieldA int `key:"field_a"`
+	}
+
+	c := configuration{
+		FieldA: 1,
+	}
+	err := yagcl.
+		New[configuration]().
+		AddSource(Source()).
+		Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, 1, c.FieldA)
+	}
+}
+
+func Test_Parse_DefaultValueZero_Int_Required(t *testing.T) {
+	type configuration struct {
+		FieldA int `key:"field_a" required:"true"`
+	}
+
+	c := configuration{
+		FieldA: 0,
+	}
+	err := yagcl.
+		New[configuration]().
+		AddSource(Source()).
+		Parse(&c)
+	// If 0 is desired to be a valid value, a pointer should be used.
+	// Alternatively remove "required:"true"".
+	assert.ErrorIs(t, err, yagcl.ErrValueNotSet)
 }
 
 func Test_Parse_MissingFieldKey(t *testing.T) {
@@ -636,7 +671,7 @@ func Test_Parse_RequiredValue_Missing_String(t *testing.T) {
 
 func Test_Parse_RequiredValue_EmptyDefault_String(t *testing.T) {
 	type configuration struct {
-		FieldA string `key:"field_a" required:"true" default:""`
+		FieldA string `key:"field_a" required:"true"`
 	}
 
 	var c configuration

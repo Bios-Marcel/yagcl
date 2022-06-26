@@ -87,27 +87,32 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 		}
 
 		value := structValue.Field(i)
-		envKey, err := s.extractEnvKey(value, structField)
-		if err != nil {
-			return err
+		envKey, errExtractKey := s.extractEnvKey(value, structField)
+		if errExtractKey != nil {
+			return errExtractKey
 		}
 		joinedEnvKey := s.keyJoiner(envPrefix, envKey)
 		envValue, set := os.LookupEnv(joinedEnvKey)
+		if !set {
+			// Since we handle pointers and structs differently, we must not do early exists / errors in these cases.
+			if structField.Type.Kind() != reflect.Struct && structField.Type.Kind() != reflect.Pointer {
+				if strings.EqualFold(structField.Tag.Get("required"), "true") && value.IsZero() {
+					return fmt.Errorf("environment variable '%s' not set correctly: %w", envKey, yagcl.ErrValueNotSet)
+				}
 
-		//FIXME Do we need to differentiate here?
-		if !set || envValue == "" {
-			envValue, _ = structField.Tag.Lookup("default")
+				continue
+			}
 		}
 
-		parsed, err := parseValue(structField.Name, structField.Type, envValue)
-		if err != nil {
-			if err != errEmbeddedStructDetected {
-				return err
+		parsed, errParseValue := parseValue(structField.Name, structField.Type, envValue)
+		if errParseValue != nil {
+			if errParseValue != errEmbeddedStructDetected {
+				return errParseValue
 			}
 
 			if value.Kind() != reflect.Pointer {
-				if err := s.parse(joinedEnvKey, value); err != nil {
-					return err
+				if errParse := s.parse(joinedEnvKey, value); errParse != nil {
+					return errParse
 				}
 				continue
 			}
@@ -117,13 +122,13 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 				newType = newType.Elem()
 			}
 			newStruct := reflect.Indirect(reflect.New(newType))
-			if err := s.parse(joinedEnvKey, newStruct); err != nil {
-				return err
+			if errParse := s.parse(joinedEnvKey, newStruct); errParse != nil {
+				return errParse
 			}
 			parsed = newStruct
 		}
 
-		if parsed.IsZero() && strings.EqualFold(structField.Tag.Get("required"), "true") {
+		if strings.EqualFold(structField.Tag.Get("required"), "true") && parsed.IsZero() {
 			return fmt.Errorf("environment variable '%s' not set correctly: %w", envKey, yagcl.ErrValueNotSet)
 		}
 
