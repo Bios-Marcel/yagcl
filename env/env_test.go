@@ -29,7 +29,7 @@ func Test_EventSource_InterfaceCompliance(t *testing.T) {
 	var _ yagcl.Source = Source()
 }
 
-func Test_Parse_TestKeyTags(t *testing.T) {
+func Test_Parse_KeyTags(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
 		FieldB string `env:"FIELD_B"`
@@ -46,7 +46,7 @@ func Test_Parse_TestKeyTags(t *testing.T) {
 	assert.Equal(t, "content b", c.FieldB)
 }
 
-func Test_Parse_TestPrefix(t *testing.T) {
+func Test_Parse_Prefix(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
 		FieldB string `env:"FIELD_B"`
