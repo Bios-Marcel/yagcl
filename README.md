@@ -3,15 +3,45 @@
 This libraries aim is to provide a powerful and dynamic way to provide
 configuration for your application.
 
+## Why
+
 The thing that other libraries were lacking is the ability to parse different
 formats, allow merging them (for example override a setting via environment variables).
 Additionally I wanna be able to specify validation, parsing, defaults and constraints
-all in a central place, the field tags.
+all in a central place: the field tags.
 
 The aim is to support all standard datatypes and allow nested structs with specified
 sub prefixes as well as one main prefix.
 
-An example struct may look something like this:
+Additionally it is planned for the consumer of the library to be able to
+validate a struct, essentially making sure it does't contain nonsensical
+combinations of tags.
+
+For example, the following wouldn't really make sense, since defining a key
+for an ignored field has no effect and will therefore result in an error:
+
+```go
+type Configuration struct {
+	Field string `key="field" ignore="true"`
+}
+```
+
+If there's already a library that does ALL of this, feel free to tell me and I'll
+delete the repository 😉.
+
+## Contribution
+
+This library is separated into multiple modules. The main module and additional
+modules for each supported source. This allows you to only specify certain
+sources in your go-mod, keeping your dependency tree small. Additionally it
+makes navigating the code base easier.
+
+If you wish to contribute a new source, please create a corresponding
+submodule.
+
+## Examples
+
+An example configuration struct may look something like this:
 
 ```go
 type Configuration struct {
@@ -34,7 +64,12 @@ type Configuration struct {
 		//be inferred from the fieldname.
 	} `json:"kafka" env_prefix:"KAFKA_"`
 }
+```
 
+Loading may look like this, depending on what your sources are and where
+your configuration files might lie:
+
+```go
 func LoadConfig() error {
 	var configuration Configuration
 	err := yagcl.
@@ -48,7 +83,7 @@ func LoadConfig() error {
 }
 ```
 
-The configuration loaded by this could look something like this:
+The configuration loaded by this would look like this:
 
 ```json
 {
@@ -62,6 +97,8 @@ The configuration loaded by this could look something like this:
 }
 ```
 
+Or this when loading environment variables:
+
 ```env
 MY_APP_HOST=localhost
 MY_APP_PORT=1234
@@ -69,22 +106,6 @@ MY_APP_KAFKA_HOST=123.123.123.123
 MY_APP_KAFKA_PORT=9092
 MY_APP_KAFKA_CONNECTION_TIMEOUT=10s
 ```
-
-Additionally it is planned for the consumer of the library to be able to
-validate a struct, essentially making sure it does't contain nonsensical
-combinations of tags.
-
-For example, the following wouldn't really make sense, since defining a key
-for an ignored field has no effect and will therefore result in an error:
-
-```go
-type Configuration struct {
-	Field string `key="field" ignore="true"`
-}
-```
-
-If there's already a library that does ALL of this, feel free to tell me and I'll
-delete the repository 😉.
 
 ## Usage
 
