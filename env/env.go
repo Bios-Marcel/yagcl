@@ -183,6 +183,12 @@ func parseValue(structField reflect.StructField, envValue string) (reflect.Value
 			}
 			parsed = reflect.ValueOf(boolValue)
 		}
+	case reflect.Complex64, reflect.Complex128:
+		{
+			// Complex isn't supported, as for example it also isn't supported
+			// by the stdlib json encoder / decoder.
+			return reflect.Value{}, fmt.Errorf("type '%s' isn't supported and won't ever be: %w", structField.Name, yagcl.ErrUnsupportedFieldType)
+		}
 	case reflect.Struct:
 		{
 			return reflect.Value{}, errEmbeddedStructDetected

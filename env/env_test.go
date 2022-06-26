@@ -167,6 +167,28 @@ func Test_Parse_Bool_Invalid(t *testing.T) {
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
+func Test_Parse_Complex64_Unsupported(t *testing.T) {
+	type configuration struct {
+		FieldA complex64 `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("field_a", "value")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
+}
+
+func Test_Parse_Complex128_Unsupported(t *testing.T) {
+	type configuration struct {
+		FieldA complex128 `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("field_a", "value")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
+}
+
 const maxUint = ^uint(0)
 const minUint = uint(0)
 const maxInt = int(maxUint >> 1)
