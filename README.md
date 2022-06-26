@@ -18,9 +18,14 @@ type Configuration struct {
 	//The environment variable names are the same, but uppercased.
 	Host        string `json:"host" required:"true"`
 	Post        int    `json:"port" required:"true"`
+	// If you don't wish to export a field, you have to ignore it.
+	// If it isn't ignored and doesn't have an explicit key, you'll
+	// get an error, as this indicates a bug. The reason we don't
+	// auto-generate a key is that this could result in unstable promises
+	// as the variable name could change and break loading of old files.
+	DontLoad    int    `ignore:"true"`
 	KafkaServer struct {
-		//Alternatively you can define them explicitly.
-		Host              string        `key:"host" default:"localhost" required:"true"`
+		//Alternatively you can define them explicitly. The same goes for json names.
 		Host              string        `json:"host" env:"HOST" default:"localhost" required:"true"`
 		Port              int           `json:"port" env:"PORT" default:"1234" required:"true"`
 		ConnectionTimeout time.Duration `json:"connection_timeout" env:"CONNECTION_TIMEOUT" default:"10s" required:"false"`
@@ -52,7 +57,7 @@ The configuration loaded by this could look something like this:
 	"kafka": {
 		"host": "123.123.123.123",
 		"port": 9092,
-		"connectionTimeout": "10s"
+		"connection_timeout": "10s"
 	}
 }
 ```
@@ -63,6 +68,19 @@ MY_APP_PORT=1234
 MY_APP_KAFKA_HOST=123.123.123.123
 MY_APP_KAFKA_PORT=9092
 MY_APP_KAFKA_CONNECTION_TIMEOUT=10s
+```
+
+Additionally it is planned for the consumer of the library to be able to
+validate a struct, essentially making sure it does't contain nonsensical
+combinations of tags.
+
+For example, the following wouldn't really make sense, since defining a key
+for an ignored field has no effect and will therefore result in an error:
+
+```go
+type Configuration struct {
+	Field string `key="field" ignore="true"`
+}
 ```
 
 If there's already a library that does ALL of this, feel free to tell me and I'll
