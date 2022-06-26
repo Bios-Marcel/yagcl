@@ -37,8 +37,9 @@ delete the repository 😉.
 
 | Name | Docs | Status |
 | - | - | - |
-| JSON | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/json) | WIP |
 | Environment Variables | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/env) | WIP |
+| JSON | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/json) | Planned |
+| .env | - | Planned |
 
 ## Contribution
 
@@ -130,5 +131,17 @@ MY_APP_KAFKA_CONNECTION_TIMEOUT=10s
 
 ## Usage
 
-**DON'T, there's no code yet. Even if ther was, wait til there's a tagged and tested version.**
+**This library isn't stable yet, even if it mostly works. The API might change any second ;)**
+
+If you want to try it out anyway, simply `go get` the desired modules.
+
+For example:
+
+```shell
+go get github.com/Bios-Marcel/yagcl/env
+```
+
+Each submodule has the main module has a dependency, meaning you'll
+automatically pull it.
+
 
