@@ -63,6 +63,29 @@ func Test_Parse_Prefix(t *testing.T) {
 	assert.Equal(t, "content a", c.FieldA)
 	assert.Equal(t, "content b", c.FieldB)
 }
+func Test_Parse_KeyValueConverter(t *testing.T) {
+	type configuration struct {
+		FieldA string `key:"field_a"`
+		FieldB string `env:"FIELD_B"`
+	}
+
+	defer setEnvTemporarily("TEST_field_a", "content a")()
+	defer setEnvTemporarily("TEST_FIELD_B", "content b")()
+	var c configuration
+	err := yagcl.
+		New[configuration]().
+		AddSource(
+			Source().
+				Prefix("TEST_").
+				KeyValueConverter(func(s string) string {
+					return s
+				}),
+		).
+		Parse(&c)
+	assert.NoError(t, err)
+	assert.Equal(t, "content a", c.FieldA)
+	assert.Equal(t, "content b", c.FieldB)
+}
 
 func Test_Parse_String_Valid(t *testing.T) {
 	type configuration struct {
