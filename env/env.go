@@ -101,13 +101,26 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 
 		parsed, err := parseValue(structField.Name, structField.Type, envValue)
 		if err != nil {
-			if err == errEmbeddedStructDetected {
+			if err != errEmbeddedStructDetected {
+				return err
+			}
+
+			if value.Kind() != reflect.Pointer {
 				if err := s.parse(joinedEnvKey, value); err != nil {
 					return err
 				}
 				continue
 			}
-			return err
+
+			newType := structField.Type.Elem()
+			for newType.Kind() == reflect.Pointer {
+				newType = newType.Elem()
+			}
+			newStruct := reflect.Indirect(reflect.New(newType))
+			if err := s.parse(joinedEnvKey, newStruct); err != nil {
+				return err
+			}
+			parsed = newStruct
 		}
 
 		if parsed.IsZero() && strings.EqualFold(structField.Tag.Get("required"), "true") {
