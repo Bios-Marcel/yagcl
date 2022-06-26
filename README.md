@@ -1,5 +1,9 @@
 # yagcl
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl)
+[![Build and Tests](https://github.com/Bios-Marcel/yagcl/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/Bios-Marcel/yagcl/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/Bios-Marcel/yagcl/branch/master/graph/badge.svg?token=BPGE55G1AX)](https://codecov.io/gh/Bios-Marcel/yagcl)
+
 This libraries aim is to provide a powerful and dynamic way to provide
 configuration for your application.
 
@@ -28,6 +32,13 @@ type Configuration struct {
 
 If there's already a library that does ALL of this, feel free to tell me and I'll
 delete the repository 😉.
+
+## Modules
+
+| Name | Docs | Status |
+| - | - | - |
+| JSON | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/json) | WIP |
+| Environment Variables | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/env) | WIP |
 
 ## Contribution
 
