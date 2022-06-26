@@ -181,6 +181,38 @@ func Test_Parse_SinglePointerToStruct(t *testing.T) {
 	}
 }
 
+func Test_Parse_SinglePointerToStruct_Invalid(t *testing.T) {
+	type substruct struct {
+		FieldC int `key:"field_c"`
+	}
+	type configuration struct {
+		FieldA string     `key:"field_a"`
+		FieldB *substruct `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C", "ain't no integer here buddy")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrParseValue)
+}
+
+func Test_Parse_Struct_Invalid(t *testing.T) {
+	type substruct struct {
+		FieldC int `key:"field_c"`
+	}
+	type configuration struct {
+		FieldA string    `key:"field_a"`
+		FieldB substruct `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C", "ain't no integer here buddy")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	assert.ErrorIs(t, err, yagcl.ErrParseValue)
+}
+
 func Test_Parse_SingleNilPointerToStruct(t *testing.T) {
 	type substruct struct {
 		FieldC string `key:"field_c"`
