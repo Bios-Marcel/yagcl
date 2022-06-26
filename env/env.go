@@ -99,7 +99,7 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 			envValue, _ = structField.Tag.Lookup("default")
 		}
 
-		parsed, err := parseValue(structField, envValue)
+		parsed, err := parseValue(structField.Name, structField.Type, envValue)
 		if err != nil {
 			if err == errEmbeddedStructDetected {
 				if err := s.parse(joinedEnvKey, value); err != nil {
@@ -114,7 +114,24 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 			return fmt.Errorf("environment variable '%s' not set correctly: %w", envKey, yagcl.ErrValueNotSet)
 		}
 
-		value.Set(parsed)
+		if value.Kind() == reflect.Pointer {
+			//Create as many values as we have pointers pointing to things.
+			var pointers []reflect.Value
+			lastPointer := reflect.New(value.Type().Elem())
+			pointers = append(pointers, lastPointer)
+			for lastPointer.Elem().Kind() == reflect.Pointer {
+				lastPointer = reflect.New(lastPointer.Elem().Type().Elem())
+				pointers = append(pointers, lastPointer)
+			}
+
+			pointers[len(pointers)-1].Elem().Set(parsed)
+			for i := len(pointers) - 2; i >= 0; i-- {
+				pointers[i].Elem().Set(pointers[i+1])
+			}
+			value.Set(pointers[0])
+		} else {
+			value.Set(parsed)
+		}
 	}
 
 	return nil
@@ -149,29 +166,27 @@ func (s *EnvSource) extractEnvKey(value reflect.Value, structField reflect.Struc
 	return envKey, nil
 }
 
-func parseValue(structField reflect.StructField, envValue string) (reflect.Value, error) {
-	var parsed reflect.Value
-	fieldType := structField.Type
+func parseValue(fieldName string, fieldType reflect.Type, envValue string) (reflect.Value, error) {
 	switch fieldType.Kind() {
 	case reflect.String:
 		{
-			parsed = reflect.ValueOf(envValue)
+			return reflect.ValueOf(envValue), nil
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		{
 			value, errParse := strconv.ParseInt(envValue, 10, int(fieldType.Size())*8)
 			if errParse != nil {
-				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), fieldName, yagcl.ErrParseValue)
 			}
-			parsed = reflect.ValueOf(value).Convert(fieldType)
+			return reflect.ValueOf(value).Convert(fieldType), nil
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		{
 			value, errParse := strconv.ParseUint(envValue, 10, int(fieldType.Size())*8)
 			if errParse != nil {
-				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), fieldName, yagcl.ErrParseValue)
 			}
-			parsed = reflect.ValueOf(value).Convert(fieldType)
+			return reflect.ValueOf(value).Convert(fieldType), nil
 		}
 	case reflect.Float32, reflect.Float64:
 		{
@@ -179,9 +194,9 @@ func parseValue(structField reflect.StructField, envValue string) (reflect.Value
 			// special behaviour.
 			var value float64
 			if errParse := json.Unmarshal([]byte(envValue), &value); errParse != nil {
-				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), fieldName, yagcl.ErrParseValue)
 			}
-			parsed = reflect.ValueOf(value).Convert(fieldType)
+			return reflect.ValueOf(value).Convert(fieldType), nil
 		}
 	case reflect.Bool:
 		{
@@ -190,25 +205,35 @@ func parseValue(structField reflect.StructField, envValue string) (reflect.Value
 			// Instead of assuming everything != true equals false, we assume
 			// that the value is unintentionally wrong and return an error.
 			if !boolValue && !strings.EqualFold(envValue, "false") {
-				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as a '%s' for field '%s': %w", envValue, fieldType.String(), structField.Name, yagcl.ErrParseValue)
+				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as a '%s' for field '%s': %w", envValue, fieldType.String(), fieldName, yagcl.ErrParseValue)
 			}
-			parsed = reflect.ValueOf(boolValue)
-		}
-	case reflect.Complex64, reflect.Complex128:
-		{
-			// Complex isn't supported, as for example it also isn't supported
-			// by the stdlib json encoder / decoder.
-			return reflect.Value{}, fmt.Errorf("type '%s' isn't supported and won't ever be: %w", structField.Name, yagcl.ErrUnsupportedFieldType)
+			return reflect.ValueOf(boolValue), nil
 		}
 	case reflect.Struct:
 		{
 			return reflect.Value{}, errEmbeddedStructDetected
 		}
+	case reflect.Pointer:
+		{
+			return parseValue(fieldName, extractNonPointerFieldType(fieldType), envValue)
+		}
+	case reflect.Complex64, reflect.Complex128:
+		{
+			// Complex isn't supported, as for example it also isn't supported
+			// by the stdlib json encoder / decoder.
+			return reflect.Value{}, fmt.Errorf("type '%s' isn't supported and won't ever be: %w", fieldName, yagcl.ErrUnsupportedFieldType)
+		}
 	default:
 		{
-			return reflect.Value{}, fmt.Errorf("type '%s': %w", structField.Name, yagcl.ErrUnsupportedFieldType)
+			return reflect.Value{}, fmt.Errorf("type '%s': %w", fieldName, yagcl.ErrUnsupportedFieldType)
 		}
 	}
+}
 
-	return parsed, nil
+func extractNonPointerFieldType(fieldType reflect.Type) reflect.Type {
+	if fieldType.Kind() != reflect.Pointer {
+		return fieldType
+	}
+
+	return extractNonPointerFieldType(fieldType.Elem())
 }

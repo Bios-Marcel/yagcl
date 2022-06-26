@@ -122,6 +122,45 @@ func Test_Parse_Struct_Valid(t *testing.T) {
 	}
 }
 
+func Test_Parse_SimplePointer(t *testing.T) {
+	type configuration struct {
+		FieldA *uint `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "10")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, uint(10), *c.FieldA)
+	}
+}
+
+func Test_Parse_DoublePointer(t *testing.T) {
+	type configuration struct {
+		FieldA **uint `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "10")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, uint(10), **c.FieldA)
+	}
+}
+
+func Test_Parse_PointerOfDoom(t *testing.T) {
+	type configuration struct {
+		FieldA ***************************************uint `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "10")()
+	var c configuration
+	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, uint(10), ***************************************c.FieldA)
+	}
+}
+
 func Test_Parse_String_Whitespace(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
