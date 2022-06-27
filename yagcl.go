@@ -95,10 +95,6 @@ func (y *YAGCL[T]) Parse(configurationStruct *T) error {
 		return ErrExpectAtLeastOneSource
 	}
 
-	// Build cached data required for parsing
-	// for _, source := range y.sources {
-	// }
-
 	// Do actual parsing.
 	for _, source := range y.sources {
 		if err := source.Parse(configurationStruct); err != nil {
