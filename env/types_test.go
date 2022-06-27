@@ -27,71 +27,6 @@ func setEnvTemporarily(key, value string) func() {
 	}
 }
 
-func Test_EventSource_InterfaceCompliance(t *testing.T) {
-	var _ yagcl.Source = Source()
-}
-
-func Test_Parse_KeyTags(t *testing.T) {
-	type configuration struct {
-		FieldA string `key:"field_a"`
-		FieldB string `env:"FIELD_B"`
-	}
-
-	defer setEnvTemporarily("FIELD_A", "content a")()
-	defer setEnvTemporarily("FIELD_B", "content b")()
-	var c configuration
-	err := yagcl.New[configuration]().
-		Add(Source()).
-		Parse(&c)
-	if assert.NoError(t, err) {
-		assert.Equal(t, "content a", c.FieldA)
-		assert.Equal(t, "content b", c.FieldB)
-	}
-}
-
-func Test_Parse_Prefix(t *testing.T) {
-	type configuration struct {
-		FieldA string `key:"field_a"`
-		FieldB string `env:"FIELD_B"`
-	}
-
-	defer setEnvTemporarily("TEST_FIELD_A", "content a")()
-	defer setEnvTemporarily("TEST_FIELD_B", "content b")()
-	var c configuration
-	err := yagcl.
-		New[configuration]().
-		Add(Source().Prefix("TEST")).
-		Parse(&c)
-	if assert.NoError(t, err) {
-		assert.Equal(t, "content a", c.FieldA)
-		assert.Equal(t, "content b", c.FieldB)
-	}
-}
-func Test_Parse_KeyValueConverter(t *testing.T) {
-	type configuration struct {
-		FieldA string `key:"field_a"`
-		FieldB string `env:"FIELD_B"`
-	}
-
-	defer setEnvTemporarily("TEST_field_a", "content a")()
-	defer setEnvTemporarily("TEST_FIELD_B", "content b")()
-	var c configuration
-	err := yagcl.
-		New[configuration]().
-		Add(
-			Source().
-				Prefix("TEST_").
-				KeyValueConverter(func(s string) string {
-					return s
-				}),
-		).
-		Parse(&c)
-	if assert.NoError(t, err) {
-		assert.Equal(t, "content a", c.FieldA)
-		assert.Equal(t, "content b", c.FieldB)
-	}
-}
-
 func Test_Parse_String_Valid(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
@@ -626,34 +561,6 @@ func Test_Parse_DefaultValueZero_Int_Required(t *testing.T) {
 	// If 0 is desired to be a valid value, a pointer should be used.
 	// Alternatively remove "required:"true"".
 	assert.ErrorIs(t, err, yagcl.ErrValueNotSet)
-}
-
-func Test_Parse_MissingFieldKey(t *testing.T) {
-	type configuration struct {
-		FieldA string
-	}
-
-	var c configuration
-	err := yagcl.
-		New[configuration]().
-		Add(Source()).
-		Parse(&c)
-	assert.ErrorIs(t, err, yagcl.ErrExportedFieldMissingKey)
-}
-
-func Test_Parse_IgnoreField1(t *testing.T) {
-	type configuration struct {
-		FieldA string `ignore:"true"`
-	}
-
-	var c configuration
-	err := yagcl.
-		New[configuration]().
-		Add(Source()).
-		Parse(&c)
-	if assert.NoError(t, err) {
-		assert.Empty(t, c.FieldA)
-	}
 }
 
 func Test_Parse_RequiredValue_Missing_String(t *testing.T) {
