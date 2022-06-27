@@ -24,23 +24,8 @@ type EnvSource struct {
 // process.
 func Source() *EnvSource {
 	return &EnvSource{
-		keyValueConverter: func(s string) string {
-			// Since by default we expect keys to be of
-			// format `word_word_...`, we just uppercase everything to meet
-			// the defacto standard of environment variables.
-			return strings.ToUpper(s)
-		},
-		keyJoiner: func(s1, s2 string) string {
-			if s1 == "" {
-				return s2
-			}
-			if s2 == "" {
-				return s1
-			}
-			// By default we want to use whatever keys we have, and join them
-			// with underscores, preventing duplicate underscores.
-			return strings.Trim(s1, "_") + "_" + strings.Trim(s2, "_")
-		},
+		keyValueConverter: defaultKeyValueConverter,
+		keyJoiner:         defaulKeyJoiner,
 	}
 }
 
@@ -61,9 +46,38 @@ func (s *EnvSource) KeyValueConverter(keyValueConverter func(string) string) *En
 	return s
 }
 
+func defaultKeyValueConverter(s string) string {
+	// Since by default we expect keys to be of
+	// format `word_word_...`, we just uppercase everything to meet
+	// the defacto standard of environment variables.
+	return strings.ToUpper(s)
+}
+
+// KeyJoiner defines the function that builds the environment variable keys.
+// For example consider the following struct:
+//     type Config struct {
+//         Sub struct {
+//             Field int `key:"field"`
+//         } `key:"sub"`
+//     }
+// The joiner could for example produce SUB_FIELD or subField, depending on
+// what the programmer desires. By default this function is set to uppercase
+// and connecting with underscores, preventing duplicate underscores.
 func (s *EnvSource) KeyJoiner(keyJoiner func(string, string) string) *EnvSource {
 	s.keyJoiner = keyJoiner
 	return s
+}
+
+func defaulKeyJoiner(s1, s2 string) string {
+	if s1 == "" {
+		return s2
+	}
+	if s2 == "" {
+		return s1
+	}
+	// By default we want to use whatever keys we have, and join them
+	// with underscores, preventing duplicate underscores.
+	return strings.Trim(s1, "_") + "_" + strings.Trim(s2, "_")
 }
 
 // KeyTag implements Source.Key.
