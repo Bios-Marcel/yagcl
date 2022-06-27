@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Bios-Marcel/yagcl"
 )
@@ -206,6 +207,17 @@ func parseValue(fieldName string, fieldType reflect.Type, envValue string) (refl
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		{
+			// Since there are no constants for alias / struct types, we have
+			// to an additional check with custom parsing, since durations
+			// also contain a duration unit, such as "s" for seconds.
+			if fieldType.AssignableTo(reflect.TypeOf(time.Duration(0))) {
+				value, errParse := time.ParseDuration(envValue)
+				if errParse != nil {
+					return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an 'time.Duration' for field '%s': %w", envValue, fieldName, yagcl.ErrParseValue)
+				}
+				return reflect.ValueOf(value).Convert(fieldType), nil
+			}
+
 			value, errParse := strconv.ParseInt(envValue, 10, int(fieldType.Size())*8)
 			if errParse != nil {
 				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), fieldName, yagcl.ErrParseValue)

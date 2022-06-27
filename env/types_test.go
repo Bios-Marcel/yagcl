@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/Bios-Marcel/yagcl"
 	"github.com/stretchr/testify/assert"
@@ -40,6 +41,20 @@ func Test_Parse_String_Valid(t *testing.T) {
 		assert.Equal(t, "content a", c.FieldA)
 	}
 }
+
+func Test_Parse_Duration(t *testing.T) {
+	type configuration struct {
+		FieldA time.Duration `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "10s")()
+	var c configuration
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, time.Second*10, c.FieldA)
+	}
+}
+
 func Test_Parse_Struct_Valid(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
