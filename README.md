@@ -69,6 +69,10 @@ type Configuration struct {
 	// auto-generate a key is that this could result in unstable promises
 	// as the variable name could change and break loading of old files.
 	DontLoad    int               `ignore:"true"`
+	// Nested structs are special, as they may not be part of your actual
+	// configuration in case you are using environment variables, but will
+	// be if you are using a JSON file. Either way, these also require the
+	// key tag, as we are otherweise unable to build the names for its fields.
 	KafkaServer KafkaServerConfig `key:"kafka"`
 }
 
@@ -77,9 +81,6 @@ type KafkaServerConfig struct {
 	Host              string        `json:"host" env:"HOST" required:"true"`
 	Port              int           `json:"port" env:"PORT" required:"true"`
 	ConnectionTimeout time.Duration `json:"connection_timeout" env:"CONNECTION_TIMEOUT" required:"false"`
-	//Nested structs are an exception, as we need a prefix for each
-	//struct to prevent clashing. If no prefix has been defined, it'll
-	//be inferred from the fieldname.
 }
 ```
 
