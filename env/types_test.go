@@ -3,6 +3,7 @@ package env
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"testing"
 
@@ -253,44 +254,19 @@ func Test_Parse_Complex128_Unsupported(t *testing.T) {
 	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
 }
 
-const maxUint = ^uint(0)
-const minUint = uint(0)
-const maxInt = int(maxUint >> 1)
-const minInt = -maxInt - 1
-
-const maxUint8 = ^uint8(0)
-const minUint8 = uint8(0)
-const maxInt8 = int8(maxUint8 >> 1)
-const minInt8 = -maxInt8 - 1
-
-const maxUint16 = ^uint16(0)
-const minUint16 = uint16(0)
-const maxInt16 = int16(maxUint16 >> 1)
-const minInt16 = -maxInt16 - 1
-
-const maxUint32 = ^uint32(0)
-const minUint32 = uint32(0)
-const maxInt32 = int32(maxUint32 >> 1)
-const minInt32 = -maxInt32 - 1
-
-const maxUint64 = ^uint64(0)
-const minUint64 = uint64(0)
-const maxInt64 = int64(maxUint64 >> 1)
-const minInt64 = -maxInt64 - 1
-
 func Test_Parse_Int_Valid(t *testing.T) {
 	type configuration struct {
 		Min int `key:"min"`
 		Max int `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt))()
+	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", math.MinInt))()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", math.MaxInt))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minInt, c.Min)
-		assert.Equal(t, maxInt, c.Max)
+		assert.Equal(t, math.MinInt, c.Min)
+		assert.Equal(t, math.MaxInt, c.Max)
 	}
 }
 
@@ -300,13 +276,13 @@ func Test_Parse_Int8_Valid(t *testing.T) {
 		Max int8 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt8))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt8))()
+	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", math.MinInt8))()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", math.MaxInt8))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minInt8, c.Min)
-		assert.Equal(t, maxInt8, c.Max)
+		assert.Equal(t, math.MinInt8, c.Min)
+		assert.Equal(t, math.MaxInt8, c.Max)
 	}
 }
 
@@ -316,13 +292,13 @@ func Test_Parse_Int16_Valid(t *testing.T) {
 		Max int16 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt16))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt16))()
+	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", math.MinInt16))()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", math.MaxInt16))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minInt16, c.Min)
-		assert.Equal(t, maxInt16, c.Max)
+		assert.Equal(t, math.MinInt16, c.Min)
+		assert.Equal(t, math.MaxInt16, c.Max)
 	}
 }
 
@@ -332,13 +308,13 @@ func Test_Parse_Int32_Valid(t *testing.T) {
 		Max int32 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt32))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt32))()
+	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", math.MinInt32))()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", math.MaxInt32))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minInt32, c.Min)
-		assert.Equal(t, maxInt32, c.Max)
+		assert.Equal(t, math.MinInt32, c.Min)
+		assert.Equal(t, math.MaxInt32, c.Max)
 	}
 }
 
@@ -348,13 +324,13 @@ func Test_Parse_Int64_Valid(t *testing.T) {
 		Max int64 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt64))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt64))()
+	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", math.MinInt64))()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", math.MaxInt64))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minInt64, c.Min)
-		assert.Equal(t, maxInt64, c.Max)
+		assert.Equal(t, math.MinInt64, c.Min)
+		assert.Equal(t, math.MaxInt64, c.Max)
 	}
 }
 
@@ -364,13 +340,13 @@ func Test_Parse_Uint_Valid(t *testing.T) {
 		Max uint `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint))()
+	defer setEnvTemporarily("MIN", "0")()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", uint(math.MaxUint)))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minUint, c.Min)
-		assert.Equal(t, maxUint, c.Max)
+		assert.Equal(t, uint(0), c.Min)
+		assert.Equal(t, uint(math.MaxUint), c.Max)
 	}
 }
 
@@ -380,13 +356,13 @@ func Test_Parse_Uint8_Valid(t *testing.T) {
 		Max uint8 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint8))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint8))()
+	defer setEnvTemporarily("MIN", "0")()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", uint8(math.MaxUint8)))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minUint8, c.Min)
-		assert.Equal(t, maxUint8, c.Max)
+		assert.Equal(t, uint8(0), c.Min)
+		assert.Equal(t, uint8(math.MaxUint8), c.Max)
 	}
 }
 
@@ -396,13 +372,13 @@ func Test_Parse_Uint16_Valid(t *testing.T) {
 		Max uint16 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint16))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint16))()
+	defer setEnvTemporarily("MIN", "0")()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", uint16(math.MaxUint16)))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minUint16, c.Min)
-		assert.Equal(t, maxUint16, c.Max)
+		assert.Equal(t, uint16(0), c.Min)
+		assert.Equal(t, uint16(math.MaxUint16), c.Max)
 	}
 }
 
@@ -412,13 +388,13 @@ func Test_Parse_Uint32_Valid(t *testing.T) {
 		Max uint32 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint32))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint32))()
+	defer setEnvTemporarily("MIN", "0")()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", uint32(math.MaxUint32)))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minUint32, c.Min)
-		assert.Equal(t, maxUint32, c.Max)
+		assert.Equal(t, uint32(0), c.Min)
+		assert.Equal(t, uint32(math.MaxUint32), c.Max)
 	}
 }
 
@@ -428,13 +404,13 @@ func Test_Parse_Uint64_Valid(t *testing.T) {
 		Max uint64 `key:"max"`
 	}
 
-	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint64))()
-	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint64))()
+	defer setEnvTemporarily("MIN", "0")()
+	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", uint64(math.MaxUint64)))()
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, minUint64, c.Min)
-		assert.Equal(t, maxUint64, c.Max)
+		assert.Equal(t, uint64(0), c.Min)
+		assert.Equal(t, uint64(math.MaxUint64), c.Max)
 	}
 }
 
