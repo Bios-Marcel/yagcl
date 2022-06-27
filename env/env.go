@@ -111,7 +111,7 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 			// Since we handle pointers and structs differently, we must not do early exists / errors in these cases.
 			if structField.Type.Kind() != reflect.Struct && structField.Type.Kind() != reflect.Pointer {
 				if strings.EqualFold(structField.Tag.Get("required"), "true") && value.IsZero() {
-					return fmt.Errorf("environment variable '%s' not set correctly: %w", envKey, yagcl.ErrValueNotSet)
+					return fmt.Errorf("environment variable '%s' not set correctly: %w", joinedEnvKey, yagcl.ErrValueNotSet)
 				}
 
 				continue
@@ -143,7 +143,7 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 		}
 
 		if strings.EqualFold(structField.Tag.Get("required"), "true") && parsed.IsZero() {
-			return fmt.Errorf("environment variable '%s' not set correctly: %w", envKey, yagcl.ErrValueNotSet)
+			return fmt.Errorf("environment variable '%s' not set correctly: %w", joinedEnvKey, yagcl.ErrValueNotSet)
 		}
 
 		if value.Kind() == reflect.Pointer {
