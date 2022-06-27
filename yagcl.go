@@ -71,11 +71,11 @@ type KeyTagConverter interface {
 	ConvertKeyTag(string) string
 }
 
-// AddSource adds a single source to read configuration from. This method can
+// Add adds a single source to read configuration from. This method can
 // be called multiple times, adding multiple ordered sources. Whatever is
 // added first is preferred. If AllowOverride() is called, all source will be
 // parsed in the defined order.
-func (y *YAGCL[T]) AddSource(source Source) *YAGCL[T] {
+func (y *YAGCL[T]) Add(source Source) *YAGCL[T] {
 	y.sources = append(y.sources, source)
 	return y
 }

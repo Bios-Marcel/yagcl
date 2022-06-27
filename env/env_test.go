@@ -41,7 +41,7 @@ func Test_Parse_KeyTags(t *testing.T) {
 	defer setEnvTemporarily("FIELD_B", "content b")()
 	var c configuration
 	err := yagcl.New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
@@ -60,7 +60,7 @@ func Test_Parse_Prefix(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source().Prefix("TEST")).
+		Add(Source().Prefix("TEST")).
 		Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
@@ -78,7 +78,7 @@ func Test_Parse_KeyValueConverter(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(
+		Add(
 			Source().
 				Prefix("TEST_").
 				KeyValueConverter(func(s string) string {
@@ -99,7 +99,7 @@ func Test_Parse_String_Valid(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
 	}
@@ -115,7 +115,7 @@ func Test_Parse_Struct_Valid(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
 		assert.Equal(t, "content c", c.FieldB.FieldC)
@@ -129,7 +129,7 @@ func Test_Parse_SimplePointer(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "10")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, uint(10), *c.FieldA)
 	}
@@ -142,7 +142,7 @@ func Test_Parse_DoublePointer(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "10")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, uint(10), **c.FieldA)
 	}
@@ -155,7 +155,7 @@ func Test_Parse_PointerOfDoom(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "10")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, uint(10), ***************************************c.FieldA)
 	}
@@ -174,7 +174,7 @@ func Test_Parse_SinglePointerToStruct(t *testing.T) {
 	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
 	var c configuration
 	c.FieldB = &substruct{}
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
 		assert.Equal(t, "content c", (*c.FieldB).FieldC)
@@ -193,7 +193,7 @@ func Test_Parse_SinglePointerToStruct_Invalid(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	defer setEnvTemporarily("FIELD_B_FIELD_C", "ain't no integer here buddy")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -209,7 +209,7 @@ func Test_Parse_Struct_Invalid(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	defer setEnvTemporarily("FIELD_B_FIELD_C", "ain't no integer here buddy")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -225,7 +225,7 @@ func Test_Parse_SingleNilPointerToStruct(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
 		assert.Equal(t, "content c", (*c.FieldB).FieldC)
@@ -243,7 +243,7 @@ func Test_Parse_PointerOfDoomToStruct(t *testing.T) {
 	defer setEnvTemporarily("FIELD_A", "content a")()
 	defer setEnvTemporarily("FIELD_B_FIELD_C", "content c")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
 		assert.Equal(t, "content c", (**************c.FieldB).FieldC)
@@ -257,7 +257,7 @@ func Test_Parse_String_Whitespace(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "   ")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "   ", c.FieldA)
 	}
@@ -276,7 +276,7 @@ func Test_Parse_Bool_Valid(t *testing.T) {
 	defer setEnvTemporarily("TRUE_UPPER", "TRUE")()
 	defer setEnvTemporarily("FALSE_UPPER", "FALSE")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, true, c.True)
 		assert.Equal(t, false, c.False)
@@ -292,7 +292,7 @@ func Test_Parse_Bool_Invalid(t *testing.T) {
 
 	defer setEnvTemporarily("BOOL", "cheese")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -303,7 +303,7 @@ func Test_Parse_Complex64_Unsupported(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "value")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
 }
 
@@ -314,7 +314,7 @@ func Test_Parse_Complex128_Unsupported(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "value")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrUnsupportedFieldType)
 }
 
@@ -352,7 +352,7 @@ func Test_Parse_Int_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minInt, c.Min)
 		assert.Equal(t, maxInt, c.Max)
@@ -368,7 +368,7 @@ func Test_Parse_Int8_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt8))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt8))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minInt8, c.Min)
 		assert.Equal(t, maxInt8, c.Max)
@@ -384,7 +384,7 @@ func Test_Parse_Int16_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt16))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt16))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minInt16, c.Min)
 		assert.Equal(t, maxInt16, c.Max)
@@ -400,7 +400,7 @@ func Test_Parse_Int32_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt32))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt32))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minInt32, c.Min)
 		assert.Equal(t, maxInt32, c.Max)
@@ -416,7 +416,7 @@ func Test_Parse_Int64_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minInt64))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxInt64))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minInt64, c.Min)
 		assert.Equal(t, maxInt64, c.Max)
@@ -432,7 +432,7 @@ func Test_Parse_Uint_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minUint, c.Min)
 		assert.Equal(t, maxUint, c.Max)
@@ -448,7 +448,7 @@ func Test_Parse_Uint8_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint8))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint8))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minUint8, c.Min)
 		assert.Equal(t, maxUint8, c.Max)
@@ -464,7 +464,7 @@ func Test_Parse_Uint16_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint16))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint16))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minUint16, c.Min)
 		assert.Equal(t, maxUint16, c.Max)
@@ -480,7 +480,7 @@ func Test_Parse_Uint32_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint32))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint32))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minUint32, c.Min)
 		assert.Equal(t, maxUint32, c.Max)
@@ -496,7 +496,7 @@ func Test_Parse_Uint64_Valid(t *testing.T) {
 	defer setEnvTemporarily("MIN", fmt.Sprintf("%d", minUint64))()
 	defer setEnvTemporarily("MAX", fmt.Sprintf("%d", maxUint64))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, minUint64, c.Min)
 		assert.Equal(t, maxUint64, c.Max)
@@ -512,7 +512,7 @@ func Test_Parse_Float32_Valid(t *testing.T) {
 	bytes, _ := json.Marshal(floatValue)
 	defer setEnvTemporarily("FLOAT", string(bytes))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, floatValue, c.Float)
 	}
@@ -527,7 +527,7 @@ func Test_Parse_Float64_Valid(t *testing.T) {
 	bytes, _ := json.Marshal(floatValue)
 	defer setEnvTemporarily("FLOAT", string(bytes))()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, floatValue, c.Float)
 	}
@@ -540,7 +540,7 @@ func Test_Parse_Float32_Invalid(t *testing.T) {
 
 	defer setEnvTemporarily("FLOAT", "5.5no float here")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -551,7 +551,7 @@ func Test_Parse_Float64_Invalid(t *testing.T) {
 
 	defer setEnvTemporarily("FLOAT", "5.5no float here")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -562,7 +562,7 @@ func Test_Parse_Int_Invalid(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "10no int here")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -573,7 +573,7 @@ func Test_Parse_Uint_Invalid(t *testing.T) {
 
 	defer setEnvTemporarily("FIELD_A", "10no int here")()
 	var c configuration
-	err := yagcl.New[configuration]().AddSource(Source()).Parse(&c)
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrParseValue)
 }
 
@@ -587,7 +587,7 @@ func Test_Parse_DefaultValue_String(t *testing.T) {
 	}
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "i am the default", c.FieldA)
@@ -604,7 +604,7 @@ func Test_Parse_DefaultValue_Int(t *testing.T) {
 	}
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 1, c.FieldA)
@@ -621,7 +621,7 @@ func Test_Parse_DefaultValueZero_Int_Required(t *testing.T) {
 	}
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	// If 0 is desired to be a valid value, a pointer should be used.
 	// Alternatively remove "required:"true"".
@@ -636,7 +636,7 @@ func Test_Parse_MissingFieldKey(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrExportedFieldMissingKey)
 }
@@ -649,7 +649,7 @@ func Test_Parse_IgnoreField1(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Empty(t, c.FieldA)
@@ -664,7 +664,7 @@ func Test_Parse_RequiredValue_Missing_String(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrValueNotSet)
 }
@@ -677,7 +677,7 @@ func Test_Parse_RequiredValue_EmptyDefault_String(t *testing.T) {
 	var c configuration
 	err := yagcl.
 		New[configuration]().
-		AddSource(Source()).
+		Add(Source()).
 		Parse(&c)
 	assert.ErrorIs(t, err, yagcl.ErrValueNotSet)
 }

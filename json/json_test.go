@@ -19,7 +19,7 @@ func Test_Parse_JSON_Simple(t *testing.T) {
 	}
 	var c configuration
 	err := yagcl.New[configuration]().
-		AddSource(Source("./test.json").Must()).
+		Add(Source("./test.json").Must()).
 		Parse(&c)
 	assert.NoError(t, err)
 	//Not yet implemented

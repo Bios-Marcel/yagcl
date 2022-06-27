@@ -35,11 +35,11 @@ delete the repository 😉.
 
 ## Modules
 
-| Name | Docs | Status |
-| - | - | - |
-| Environment Variables | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/env) | WIP |
-| JSON | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/json) | Planned |
-| .env | - | Planned |
+| Name                  | Docs                                                                                                                                                 | Status  |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Environment Variables | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/env)    | WIP     |
+| JSON                  | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/json) | Planned |
+| .env                  | -                                                                                                                                                    | Planned |
 
 ## Contribution
 
@@ -96,9 +96,9 @@ func LoadConfig() error {
 	}
 	err := yagcl.
 		//This allows ordering when using override, so you can have something like this.
-		AddSource(json.Source("/etc/myapp/config.json").Must()).
-		AddSource(env.Source().Prefix("MY_APP_")).
-		AddSource(json.Source("~/.config/config.json")).
+		Add(json.Source("/etc/myapp/config.json").Must()).
+		Add(env.Source().Prefix("MY_APP_")).
+		Add(json.Source("~/.config/config.json")).
 		AllowOverride().
 		Parse(&configuration)
 	return err
