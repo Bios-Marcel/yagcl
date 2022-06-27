@@ -60,17 +60,6 @@ type Source interface {
 	KeyTag() string
 }
 
-// FIXME DELETE?
-// KeyTagConverter is an optional interface sources can implement if they
-// either don't want to offer their own key tag or make use if the simplicity
-// of only having to define one tag for multiple source types.
-type KeyTagConverter interface {
-	// ConvertKeyTag takes a keys value, for example the "test" in "key=test"
-	// and converts it to a different format, for example all upper-cased
-	// "TEST".
-	ConvertKeyTag(string) string
-}
-
 // Add adds a single source to read configuration from. This method can
 // be called multiple times, adding multiple ordered sources. Whatever is
 // added first is preferred. If AllowOverride() is called, all source will be
