@@ -55,7 +55,7 @@ func Test_Parse_Duration(t *testing.T) {
 	}
 }
 
-func Test_Parse_Struct_Valid(t *testing.T) {
+func Test_Parse_Struct(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
 		FieldB struct {
@@ -70,6 +70,32 @@ func Test_Parse_Struct_Valid(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Equal(t, "content a", c.FieldA)
 		assert.Equal(t, "content c", c.FieldB.FieldC)
+	}
+}
+
+func Test_Parse_DeeplyNested_Struct(t *testing.T) {
+	type configuration struct {
+		FieldA string `key:"field_a"`
+		FieldB struct {
+			FieldC struct {
+				FieldD struct {
+					FieldE struct {
+						FieldF struct {
+							FieldG string `key:"field_g"`
+						} `key:"field_f"`
+					} `key:"field_e"`
+				} `key:"field_d"`
+			} `key:"field_c"`
+		} `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C_FIELD_D_FIELD_E_FIELD_F_FIELD_G", "content c")()
+	var c configuration
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		assert.Equal(t, "content c", c.FieldB.FieldC.FieldD.FieldE.FieldF.FieldG)
 	}
 }
 
