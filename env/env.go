@@ -96,7 +96,7 @@ func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
 		structField := structType.Field(i)
 		// By default, all exported fiels are not ignored and all exported
 		// fields are. Unexported fields can't be un-ignored though.
-		if strings.EqualFold(structField.Tag.Get("ignore"), "true") {
+		if !structField.IsExported() || strings.EqualFold(structField.Tag.Get("ignore"), "true") {
 			continue
 		}
 

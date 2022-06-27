@@ -99,3 +99,19 @@ func Test_Parse_IgnoreField(t *testing.T) {
 		assert.Empty(t, c.FieldA)
 	}
 }
+
+func Test_Parse_UnexportedFieldsIgnored(t *testing.T) {
+	type configuration struct {
+		fieldA string `key:"field_a"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	var c configuration
+	err := yagcl.
+		New[configuration]().
+		Add(Source()).
+		Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Empty(t, c.fieldA)
+	}
+}
