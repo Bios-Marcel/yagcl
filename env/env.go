@@ -205,7 +205,7 @@ func parseValue(fieldName string, fieldType reflect.Type, envValue string) (refl
 		{
 			return reflect.ValueOf(envValue), nil
 		}
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int64:
 		{
 			// Since there are no constants for alias / struct types, we have
 			// to an additional check with custom parsing, since durations
@@ -217,7 +217,13 @@ func parseValue(fieldName string, fieldType reflect.Type, envValue string) (refl
 				}
 				return reflect.ValueOf(value).Convert(fieldType), nil
 			}
-
+		}
+		// Since we seem to just have a normal int64 (or other alias type), we
+		// want to proceed treating it as a normal int, which is why we
+		// fallthrough.
+		fallthrough
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32:
+		{
 			value, errParse := strconv.ParseInt(envValue, 10, int(fieldType.Size())*8)
 			if errParse != nil {
 				return reflect.Value{}, fmt.Errorf("value '%s' isn't parsable as an '%s' for field '%s': %w", envValue, fieldType.String(), fieldName, yagcl.ErrParseValue)
