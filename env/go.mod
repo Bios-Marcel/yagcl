@@ -3,7 +3,7 @@ module github.com/Bios-Marcel/yagcl/env
 go 1.18
 
 require (
-	github.com/Bios-Marcel/yagcl v0.0.0-20220625174117-23b3520d8a9d
+	github.com/Bios-Marcel/yagcl v0.0.0-20220627085011-cd5027c23fc9
 	github.com/stretchr/testify v1.7.5
 )
 
