@@ -347,8 +347,8 @@ func Test_Parse_Int8_Valid(t *testing.T) {
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, math.MinInt8, c.Min)
-		assert.Equal(t, math.MaxInt8, c.Max)
+		assert.Equal(t, int8(math.MinInt8), c.Min)
+		assert.Equal(t, int8(math.MaxInt8), c.Max)
 	}
 }
 
@@ -363,8 +363,8 @@ func Test_Parse_Int16_Valid(t *testing.T) {
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, math.MinInt16, c.Min)
-		assert.Equal(t, math.MaxInt16, c.Max)
+		assert.Equal(t, int16(math.MinInt16), c.Min)
+		assert.Equal(t, int16(math.MaxInt16), c.Max)
 	}
 }
 
@@ -379,8 +379,8 @@ func Test_Parse_Int32_Valid(t *testing.T) {
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, math.MinInt32, c.Min)
-		assert.Equal(t, math.MaxInt32, c.Max)
+		assert.Equal(t, int32(math.MinInt32), c.Min)
+		assert.Equal(t, int32(math.MaxInt32), c.Max)
 	}
 }
 
@@ -395,8 +395,8 @@ func Test_Parse_Int64_Valid(t *testing.T) {
 	var c configuration
 	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
 	if assert.NoError(t, err) {
-		assert.Equal(t, math.MinInt64, c.Min)
-		assert.Equal(t, math.MaxInt64, c.Max)
+		assert.Equal(t, int64(math.MinInt64), c.Min)
+		assert.Equal(t, int64(math.MaxInt64), c.Max)
 	}
 }
 
