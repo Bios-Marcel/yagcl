@@ -227,6 +227,31 @@ func Test_Parse_PointerOfDoomToStruct(t *testing.T) {
 	}
 }
 
+func Test_Parse_NestedPointerOfDoomToStruct(t *testing.T) {
+	type configuration struct {
+		FieldA string `key:"field_a"`
+		FieldB **************struct {
+			FieldC **************struct {
+				FieldD **************struct {
+					FieldE string `key:"field_e"`
+				} `key:"field_d"`
+			} `key:"field_c"`
+		} `key:"field_b"`
+	}
+
+	defer setEnvTemporarily("FIELD_A", "content a")()
+	defer setEnvTemporarily("FIELD_B_FIELD_C_FIELD_D_FIELD_E", "content c")()
+	var c configuration
+	err := yagcl.New[configuration]().Add(Source()).Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "content a", c.FieldA)
+		fieldC := (**************c.FieldB).FieldC
+		fieldD := (**************fieldC).FieldD
+		fieldE := (**************fieldD).FieldE
+		assert.Equal(t, "content c", fieldE)
+	}
+}
+
 func Test_Parse_String_Whitespace(t *testing.T) {
 	type configuration struct {
 		FieldA string `key:"field_a"`
