@@ -41,6 +41,8 @@ delete the repository 😉.
 | JSON                  | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl/json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl/json) | Planned |
 | .env                  | -                                                                                                                                                    | Planned |
 
+Also check out the [Roadmap](#roadmap) for more detailed information.
+
 ## Contribution
 
 This library is separated into multiple modules. The main module and additional
@@ -131,7 +133,7 @@ MY_APP_KAFKA_CONNECTION_TIMEOUT=10s
 
 ## Usage
 
-**This library isn't stable yet, even if it mostly works. The API might change any second ;)**
+**This library isn't stable / feature complete yet, even if it mostly works. The API might change any second ;)**
 
 If you want to try it out anyway, simply `go get` the desired modules.
 
@@ -144,4 +146,32 @@ go get github.com/Bios-Marcel/yagcl/env
 Each submodule has the main module has a dependency, meaning you'll
 automatically pull it.
 
+## Roadmap
 
+- [x] Basic API
+- [ ] Validation of configuration struct
+- [ ] Functioning Override mechanism where a whole source is optional or only some fields
+  > While overriding in general works, we'll error as soon as we are missing
+  > one required value in any of the sources.
+- [ ] Read JSON
+  - [ ] Honor `key` tags
+  - [x] Honor `json`tags
+  - [ ] Honor `ignore` tags
+  - [ ] Honor `required` tags
+- [ ] Read Environment variables
+  - [x] Honor `key` tags
+  - [x] Honor `env` tags
+  - [x] Honor `ignore` tags
+  - [x] Honor `required` tags
+  - [ ] Type support
+	- [x] int / uint
+	- [x] float
+	- [x] bool
+	- [x] string
+	- [x] struct
+	- [x] pointer
+	- [x] time.Duration
+	- [ ] array
+	- [ ] map
+- [ ] Read .env files
+  > Will share code with environment variables and should have the same progression.
