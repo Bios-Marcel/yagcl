@@ -35,11 +35,11 @@ delete the repository 😉.
 
 ## Modules
 
-| Name                  | Docs                                                                                                                                                 | Status  |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| Environment Variables | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-env)    | WIP     |
-| JSON                  | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-json) | Planned |
-| .env                  | -                                                                                                                                                    | Planned |
+| Name                  | Repo                                               | Docs                                                                                                                                                 | Status  |
+| --------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Environment Variables | [GitHub](https://github.com/Bios-Marcel/yagcl-env) | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-env)    | WIP     |
+| JSON                  | [GitHub](https://github.com/Bios-Marcel/yagcl-env) | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-json) | Planned |
+| .env                  | -                                                  | -                                                                                                                                                    | Planned |
 
 Also check out the [Roadmap](#roadmap) for more detailed information.
 
