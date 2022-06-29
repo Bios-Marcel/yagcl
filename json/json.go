@@ -32,16 +32,17 @@ func (s *JSONSource) KeyTag() string {
 }
 
 // Parse implements Source.Parse.
-func (s *JSONSource) Parse(configurationStruct any) error {
+func (s *JSONSource) Parse(configurationStruct any) (bool, error) {
 	file, errOpen := os.OpenFile(s.path, os.O_RDONLY, os.ModePerm)
 	if os.IsNotExist(errOpen) {
 		if s.must {
-			return yagcl.ErrSourceNotFound
+			return false, yagcl.ErrSourceNotFound
 		}
-		return nil
+		return false, nil
 	}
 
-	return json.
+	err := json.
 		NewDecoder(file).
 		Decode(configurationStruct)
+	return err != nil, err
 }

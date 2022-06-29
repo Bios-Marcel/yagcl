@@ -87,8 +87,11 @@ func (s *EnvSource) KeyTag() string {
 }
 
 // Parse implements Source.Parse.
-func (s *EnvSource) Parse(configurationStruct any) error {
-	return s.parse(s.prefix, reflect.Indirect(reflect.ValueOf(configurationStruct)))
+func (s *EnvSource) Parse(configurationStruct any) (bool, error) {
+	// FIXME For now we always say we've loaded something, this should change
+	// at some point, using some kind of "was at least one variable loaded"
+	// check.
+	return true, s.parse(s.prefix, reflect.Indirect(reflect.ValueOf(configurationStruct)))
 }
 
 func (s *EnvSource) parse(envPrefix string, structValue reflect.Value) error {
