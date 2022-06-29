@@ -49,11 +49,14 @@ func New[T any]() *YAGCL[T] {
 
 // Source represents a source for configuration values. This might be backed
 // by files of different formats, network access, environment variables or
-// even the windows registry. While YAGCL offers default sources, you can
+// even the Windows registry. While YAGCL offers default sources, you can
 // easily integrate your own source.
 type Source interface {
-	// Parse attempts retrieving data from the source and parsing it.
-	Parse(any) error
+	// Parse attempts retrieving data from the source and parsing it. This
+	// should return true if anything was loaded. If nothing was loaded, but we
+	// expected to load data, we should return an error. A realistic scenario
+	// here would be that a Source is required instead of "load if found".
+	Parse(any) (bool, error)
 	// KeyTag defines the golang struct field tag that defines a specific tag
 	// for this source. This allows having one generic key, but overrides for
 	// specific sources.
@@ -86,11 +89,12 @@ func (y *YAGCL[T]) Parse(configurationStruct *T) error {
 
 	// Do actual parsing.
 	for _, source := range y.sources {
-		if err := source.Parse(configurationStruct); err != nil {
+		loaded, err := source.Parse(configurationStruct)
+		if err != nil {
 			return err
 		}
 
-		if !y.allowOverride {
+		if loaded && !y.allowOverride {
 			break
 		}
 	}
