@@ -11,6 +11,8 @@ var (
 	// ErrSourceNotFound implies that a source has been added, but for example
 	// the file it is supposed to read can't be found.
 	ErrSourceNotFound = errors.New("the source could not find its target")
+	// ErrInvalidConfiguraionPointer TODO
+	ErrInvalidConfiguraionPointer = errors.New("invalid configuration pointer passed")
 
 	// ErrExportedFieldMissingKey implies that a field is exported, but
 	// doesn't define the key required for parsing it from a source. This
@@ -83,11 +85,20 @@ func (y *YAGCL[T]) AllowOverride() *YAGCL[T] {
 // configuration into. Note that you'll first have to specify any type
 // type of configuration to be loaded.
 func (y *YAGCL[T]) Parse(configurationStruct *T) error {
+	// While no sources would technically be fine, it doesn't really make
+	// sense to call Parse at all then. Unless sources are somehow defined
+	// dynamically, but that would go against the idea of this congfiguration
+	// library.
 	if len(y.sources) == 0 {
 		return ErrExpectAtLeastOneSource
 	}
 
-	// Do actual parsing.
+	// Since a nil pointer can't be set to a zero-struct from inside a
+	// function, we have to error here.
+	if configurationStruct == nil {
+		return ErrInvalidConfiguraionPointer
+	}
+
 	for _, source := range y.sources {
 		loaded, err := source.Parse(configurationStruct)
 		if err != nil {
