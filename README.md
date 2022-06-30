@@ -148,20 +148,20 @@ go get github.com/Bios-Marcel/yagcl-env
 ## Roadmap
 
 - [x] Basic API
-- [ ] Validation of configuration struct
-- [ ] Functioning Override mechanism where a whole source is optional or only some fields
+- [ ] General Features
+  - [ ] Honor `required` tags
+  - [ ] Validation of configuration struct
+  - [ ] Functioning Override mechanism where a whole source is optional or only some fields
   > While overriding in general works, we'll error as soon as we are missing
   > one required value in any of the sources.
 - [ ] Read JSON
   - [ ] Honor `key` tags
   - [x] Honor `json`tags
   - [ ] Honor `ignore` tags
-  - [ ] Honor `required` tags
 - [ ] Read Environment variables
   - [x] Honor `key` tags
   - [x] Honor `env` tags
   - [x] Honor `ignore` tags
-  - [x] Honor `required` tags
   - [ ] Type support
     - [x] int / uint
     - [x] float
