@@ -155,9 +155,19 @@ go get github.com/Bios-Marcel/yagcl-env
   > While overriding in general works, we'll error as soon as we are missing
   > one required value in any of the sources.
 - [ ] Read JSON
-  - [ ] Honor `key` tags
+  - [x] Honor `key` tags
   - [x] Honor `json`tags
-  - [ ] Honor `ignore` tags
+  - [x] Honor `ignore` tags
+  - [ ] Type support
+    - [ ] int / uint (Tests missing)
+    - [ ] float (Tests missing)
+    - [x] bool
+    - [x] string
+    - [x] struct
+    - [ ] pointer (broken)
+    - [x] time.Duration
+    - [ ] array (Tests missing)
+    - [ ] map (Tests missing)
 - [ ] Read Environment variables
   - [x] Honor `key` tags
   - [x] Honor `env` tags
