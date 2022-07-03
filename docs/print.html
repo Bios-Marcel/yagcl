@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> Chapter 1</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="concept.html"><strong aria-hidden="true">1.</strong> Concept</a></li><li class="chapter-item expanded "><a href="modules.html"><strong aria-hidden="true">2.</strong> Modules</a></li><li class="chapter-item expanded affix "><li class="part-title">Usage</li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="configuration.html"><strong aria-hidden="true">4.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="own-modules.html"><strong aria-hidden="true">5.</strong> Writing your own module</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -143,7 +143,33 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-1"><a class="header" href="#chapter-1">Chapter 1</a></h1>
+                        <h1 id="concept"><a class="header" href="#concept">Concept</a></h1>
+<p>The idea of this project is to provide a simple and extensible API for
+loading application configuration.</p>
+<p>It shouldn't matter whether you want to use JSON, TOML, .env files or other
+formats and sources. Each source can be implemented by implementing a source
+interface, meaning that anyone can implement a custom source and make it
+available to the community without having to get it accepted into the official
+yagcl repositories, which is an option too if the standards are met.</p>
+<p>By default, this library provides some source implementations. More on that
+in chapter <a href="./modules.html">Modules</a>.</p>
+<p>Furthermore, the configuration of your available settings is done via structs
+and tags on its fields. All of this is as generic as possible, which results
+in some rules that modules have to follow.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="modules"><a class="header" href="#modules">Modules</a></h1>
+<p>This project has been split into multiple modules. Each modules has its own
+repository and provides a golang module. The main repository <code>/yagcl</code> is what
+all modules have to depend on.</p>
+<p>It's the repository that defines which interface has to be implemented, which
+errors should be returned in certain situations and even how certain tags
+should be treated. While not all of these things are caught by the compiler, it
+is still important the rules are followed, as a consistent API usage can't be
+guaranteed otherwise. More on this topic in
+<a href="./own-modules.html">Writing your own module</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="configuration"><a class="header" href="#configuration">Configuration</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="writing-your-own-module"><a class="header" href="#writing-your-own-module">Writing your own module</a></h1>
+<p>TODO</p>
 
                     </main>
 
