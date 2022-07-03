@@ -2,7 +2,6 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl)
 [![Build and Tests](https://github.com/Bios-Marcel/yagcl/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/Bios-Marcel/yagcl/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/Bios-Marcel/yagcl/branch/master/graph/badge.svg?token=BPGE55G1AX)](https://codecov.io/gh/Bios-Marcel/yagcl)
 
 This libraries aim is to provide a powerful and dynamic way to provide
 configuration for your application.
@@ -10,9 +9,9 @@ configuration for your application.
 ## Why
 
 The thing that other libraries were lacking is the ability to parse different
-formats, allow merging them (for example override a setting via environment variables).
-Additionally I wanna be able to specify validation, parsing, defaults and constraints
-all in a central place: the field tags.
+formats, allow merging them (for example override a setting via environment
+variables). Additionally I wanna be able to specify certain things via a reduced
+set and golang defaults.
 
 The aim is to support all standard datatypes and allow nested structs with specified
 sub prefixes as well as one main prefix.
@@ -30,16 +29,14 @@ type Configuration struct {
 }
 ```
 
-If there's already a library that does ALL of this, feel free to tell me and I'll
-delete the repository 😉.
-
 ## Modules
 
-| Name                  | Repo                                               | Docs                                                                                                                                                 | Status  |
-| --------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| Environment Variables | [GitHub](https://github.com/Bios-Marcel/yagcl-env) | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-env)    | WIP     |
-| JSON                  | [GitHub](https://github.com/Bios-Marcel/yagcl-env) | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-json) | Planned |
-| .env                  | -                                                  | -                                                                                                                                                    | Planned |
+| Name                  | Repo                                                          | Docs                                                                                                                                                 | Status  | Test Coverage                                                                                                                                                             |
+| --------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Main                  | [You are here already!](https://github.com/Bios-Marcel/yagcl) | [![Go Reference yagcl package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl)          | WIP     | [![codecoverage main package](https://codecov.io/gh/Bios-Marcel/yagcl/branch/master/graph/badge.svg?token=BPGE55G1AX)](https://codecov.io/gh/Bios-Marcel/yagcl)           |
+| Environment Variables | [GitHub](https://github.com/Bios-Marcel/yagcl-env)            | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-env)    | WIP     | [![codecoverage env package](https://codecov.io/gh/Bios-Marcel/yagcl-env/branch/master/graph/badge.svg?token=82SUL3UD8H)](https://codecov.io/gh/Bios-Marcel/yagcl-env)    |
+| JSON                  | [GitHub](https://github.com/Bios-Marcel/yagcl-json)           | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-json) | WIP     | [![codecoverage json package](https://codecov.io/gh/Bios-Marcel/yagcl-json/branch/master/graph/badge.svg?token=6Z45XN9GKZ)](https://codecov.io/gh/Bios-Marcel/yagcl-json) |
+| .env                  | -                                                             | -                                                                                                                                                    | Planned | -                                                                                                                                                                         |
 
 Also check out the [Roadmap](#roadmap) for more detailed information.
 
@@ -184,3 +181,10 @@ go get github.com/Bios-Marcel/yagcl-env
     - [ ] map
 - [ ] Read .env files
   > Will share code with environment variables and should have the same progression.
+
+## Non Goals
+
+* High performance
+  > The code makes use of reflection and generally isn't written with
+  > efficiency in mind. However, this lib is supposed to do a one-time parse
+  > of configuration sources and therefore it shouldn't matter
