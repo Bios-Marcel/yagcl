@@ -161,7 +161,7 @@ go get github.com/Bios-Marcel/yagcl-env
     - [x] bool
     - [x] string
     - [x] struct
-    - [ ] pointer (broken)
+    - [x] pointer
     - [x] time.Duration
     - [ ] array (Tests missing)
     - [ ] map (Tests missing)
