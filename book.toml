@@ -4,3 +4,7 @@ language = "en"
 multilingual = false
 src = "src"
 title = "YAGCL"
+
+[output.html]
+edit-url-template = "https://github.com/Bios-Marcel/yagcl/edit/docs/{path}"
+site-url = "/yagcl/"
