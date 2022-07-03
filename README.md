@@ -156,8 +156,8 @@ go get github.com/Bios-Marcel/yagcl-env
   - [x] Honor `json`tags
   - [x] Honor `ignore` tags
   - [ ] Type support
-    - [ ] int / uint (Tests missing)
-    - [ ] float (Tests missing)
+    - [x] int / uint
+    - [x] float
     - [x] bool
     - [x] string
     - [x] struct
