@@ -97,9 +97,9 @@ func LoadConfig() error {
     err := yagcl.
         New[Configuration]()
         //This allows ordering when using override, so you can have something like this.
-        Add(yagcl_json.Source("/etc/myapp/config.json").Must()).
+        Add(yagcl_json.Source().Path("/etc/myapp/config.json").Must()).
         Add(yagcl_env.Source().Prefix("MY_APP_")).
-        Add(yagcl_json.Source("~/.config/config.json")).
+        Add(yagcl_json.Source().Path("~/.config/config.json")).
         AllowOverride().
         Parse(&configuration)
     return err
