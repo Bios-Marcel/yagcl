@@ -2,6 +2,8 @@ package yagcl
 
 import (
 	"errors"
+	"reflect"
+	"strings"
 )
 
 var (
@@ -38,17 +40,6 @@ var (
 // their faith in.
 const DefaultKeyTagName = "key"
 
-type YAGCL[T any] struct {
-	sources       []Source
-	allowOverride bool
-}
-
-// New creates a fresh instance of YAGCL. This is an alternative to using the
-// global instance accessible via Global().
-func New[T any]() *YAGCL[T] {
-	return &YAGCL[T]{}
-}
-
 // Source represents a source for configuration values. This might be backed
 // by files of different formats, network access, environment variables or
 // even the Windows registry. While YAGCL offers default sources, you can
@@ -58,33 +49,72 @@ type Source interface {
 	// should return true if anything was loaded. If nothing was loaded, but we
 	// expected to load data, we should return an error. A realistic scenario
 	// here would be that a Source is required instead of "load if found".
-	Parse(any) (bool, error)
+	Parse(ParsingCompanion, any) (bool, error)
 	// KeyTag defines the golang struct field tag that defines a specific tag
 	// for this source. This allows having one generic key, but overrides for
 	// specific sources.
 	KeyTag() string
 }
 
-// Add adds a single source to read configuration from. This method can
-// be called multiple times, adding multiple ordered sources. Whatever is
-// added first is preferred. If AllowOverride() is called, all source will be
-// parsed in the defined order.
-func (y *YAGCL[T]) Add(source Source) *YAGCL[T] {
+type yagclImpl[T any] struct {
+	sources        []Source
+	allowOverride  bool
+	inferFieldKeys bool
+	keyTags        []string
+}
+
+// YAGCL defines the setup interface for YAGCL.
+type YAGCL[T any] interface {
+	// Add adds a single source to read configuration from. This method can
+	// be called multiple times, adding multiple ordered sources. Whatever is
+	// added first is preferred. If AllowOverride() is called, all source will be
+	// parsed in the defined order.
+	Add(source Source) YAGCL[T]
+	// AllowOverride allows YAGCL to read from multiple sources. For example more
+	// than one JSON file or a JSON file and the environment.
+	AllowOverride() YAGCL[T]
+	// InferFieldKeys activates automtic generation of a field key if none has
+	// been defined by the programmers.
+	InferFieldKeys() YAGCL[T]
+	// AdditionalKeyTags defines tags other than `key`, which will then be used
+	// by ParsingCompanion.ExtractFieldKey.
+	AdditionalKeyTags(tags ...string) YAGCL[T]
+
+	// Parse expects a pointer to a struct, which it'll attempt loading the
+	// configuration into. Note that you'll first have to specify any type
+	// type of configuration to be loaded.
+	Parse(configurationStruct *T) error
+}
+
+// New creates a fresh instance of YAGCL. This is an alternative to using the
+// global instance accessible via Global().
+func New[T any]() YAGCL[T] {
+	return &yagclImpl[T]{
+		keyTags: []string{DefaultKeyTagName},
+	}
+}
+
+func (y *yagclImpl[T]) Add(source Source) YAGCL[T] {
 	y.sources = append(y.sources, source)
 	return y
 }
 
-// AllowOverride allows YAGCL to read from multiple sources. For example more
-// than one JSON file or a JSON file and the environment.
-func (y *YAGCL[T]) AllowOverride() *YAGCL[T] {
+func (y *yagclImpl[T]) AllowOverride() YAGCL[T] {
 	y.allowOverride = true
 	return y
 }
 
-// Parse expects a pointer to a struct, which it'll attempt loading the
-// configuration into. Note that you'll first have to specify any type
-// type of configuration to be loaded.
-func (y *YAGCL[T]) Parse(configurationStruct *T) error {
+func (y *yagclImpl[T]) InferFieldKeys() YAGCL[T] {
+	y.inferFieldKeys = true
+	return y
+}
+
+func (y *yagclImpl[T]) AdditionalKeyTags(tags ...string) YAGCL[T] {
+	y.keyTags = append(y.keyTags, tags...)
+	return y
+}
+
+func (y *yagclImpl[T]) Parse(configurationStruct *T) error {
 	// While no sources would technically be fine, it doesn't really make
 	// sense to call Parse at all then. Unless sources are somehow defined
 	// dynamically, but that would go against the idea of this congfiguration
@@ -100,7 +130,7 @@ func (y *YAGCL[T]) Parse(configurationStruct *T) error {
 	}
 
 	for _, source := range y.sources {
-		loaded, err := source.Parse(configurationStruct)
+		loaded, err := source.Parse(y, configurationStruct)
 		if err != nil {
 			return err
 		}
@@ -111,4 +141,34 @@ func (y *YAGCL[T]) Parse(configurationStruct *T) error {
 	}
 
 	return nil
+}
+
+type ParsingCompanion interface {
+	// IncludeField determines whether the field should be included in parsing.
+	// This defines the standard for YAGCL and should be used by all sources.
+	// A source may support additional rules that may even overwrite this ruleset.
+	IncludeField(reflect.StructField) bool
+	// ExtractFieldKey defines which identifier should be used for the given
+	// field. This defines the standard identifier defined by YAGCL if no
+	// specific identifier has been found for your source.
+	ExtractFieldKey(reflect.StructField) string
+}
+
+func (y *yagclImpl[T]) IncludeField(structField reflect.StructField) bool {
+	return structField.IsExported() && !strings.EqualFold(structField.Tag.Get("ignore"), "true")
+}
+
+func (y *yagclImpl[T]) ExtractFieldKey(structField reflect.StructField) string {
+	for _, keyTag := range y.keyTags {
+		tagName, isSet := structField.Tag.Lookup(keyTag)
+		if isSet && tagName != "" {
+			return tagName
+		}
+	}
+
+	if y.inferFieldKeys {
+		return strings.ToLower(structField.Name)
+	}
+
+	return ""
 }
