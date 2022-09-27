@@ -178,6 +178,10 @@ go get github.com/Bios-Marcel/yagcl-env
     - [x] pointer
     - [x] time.Duration
     - [ ] array
+      - [x] basic types
+      - [ ] Nested array / slice
+      - [ ] map
+      - [ ] struct
     - [ ] map
 - [ ] Read .env files
   > Will share code with environment variables and should have the same progression.
