@@ -1,7 +1,9 @@
 package test
 
 import (
+	"errors"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/Bios-Marcel/yagcl"
@@ -26,10 +28,103 @@ func (s *dummySource) Parse(parsingCompanion yagcl.ParsingCompanion, configurati
 			continue
 		}
 
+		if strings.EqualFold(structField.Tag.Get("error"), "true") {
+			return false, errors.New("errrrrr")
+		}
+
 		value := structValue.Field(i)
 		value.Set(reflect.ValueOf(parsingCompanion.ExtractFieldKey(structField)))
 	}
 	return true, nil
+}
+
+func Test_Parse_NoSources(t *testing.T) {
+	type config struct{}
+	cfg := &config{}
+	err := yagcl.
+		New[config]().
+		Parse(cfg)
+	assert.ErrorIs(t, err, yagcl.ErrExpectAtLeastOneSource)
+}
+
+func Test_Parse_ErrInSourceParse(t *testing.T) {
+	type config struct {
+		Field string `key:"field" error:"true"`
+	}
+	var cfg config
+	err := yagcl.
+		New[config]().
+		Add(&dummySource{}).
+		Parse(&cfg)
+	assert.Error(t, err)
+}
+
+type overrideSource struct {
+	value string
+}
+
+func (s *overrideSource) KeyTag() string {
+	return "s"
+}
+
+func (s *overrideSource) Parse(parsingCompanion yagcl.ParsingCompanion, configurationStruct any) (bool, error) {
+	structValue := reflect.Indirect(reflect.ValueOf(configurationStruct))
+	structType := structValue.Type()
+	for i := 0; i < structValue.NumField(); i++ {
+		structField := structType.Field(i)
+		if !parsingCompanion.IncludeField(structField) {
+			continue
+		}
+
+		value := structValue.Field(i)
+		value.Set(reflect.ValueOf(s.value))
+	}
+	return true, nil
+}
+
+func (s *overrideSource) Value(value string) *overrideSource {
+	s.value = value
+	return s
+}
+
+func newOverrideSource() *overrideSource {
+	return &overrideSource{}
+}
+
+func Test_Parse_Override(t *testing.T) {
+	type config struct {
+		Field string `key:"field"`
+	}
+	var c config
+	err := yagcl.
+		New[config]().
+		Add(newOverrideSource().Value("a")).
+		AllowOverride().
+		Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "a", c.Field)
+	}
+
+	c = config{}
+	err = yagcl.
+		New[config]().
+		Add(newOverrideSource().Value("a")).
+		Add(newOverrideSource().Value("b")).
+		AllowOverride().
+		Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "b", c.Field)
+	}
+
+	c = config{}
+	err = yagcl.
+		New[config]().
+		Add(newOverrideSource().Value("a")).
+		Add(newOverrideSource().Value("b")).
+		Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "a", c.Field)
+	}
 }
 
 func Test_Parse_InferFieldKey(t *testing.T) {
