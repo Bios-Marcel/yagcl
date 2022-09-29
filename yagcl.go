@@ -60,7 +60,17 @@ type yagclImpl[T any] struct {
 	sources        []Source
 	allowOverride  bool
 	inferFieldKeys bool
-	keyTags        []string
+	keyTags        []KeyTag
+}
+
+// KeyTag describes a supporte that contains a field key. Additionally you
+// can define a custom parser, that manipulates the content before using it.
+// This can for example be useful if you want ot use a pre-existing tag, such
+// as the standard libraries JSON tag, which may contain additional values
+// separated by a comma, such as "omitempty".
+type KeyTag struct {
+	Name   string
+	Parser func(string) string
 }
 
 // YAGCL defines the setup interface for YAGCL.
@@ -78,7 +88,7 @@ type YAGCL[T any] interface {
 	InferFieldKeys() YAGCL[T]
 	// AdditionalKeyTags defines tags other than `key`, which will then be used
 	// by ParsingCompanion.ExtractFieldKey.
-	AdditionalKeyTags(tags ...string) YAGCL[T]
+	AdditionalKeyTags(tags ...KeyTag) YAGCL[T]
 
 	// Parse expects a pointer to a struct, which it'll attempt loading the
 	// configuration into. Note that you'll first have to specify any type
@@ -90,7 +100,7 @@ type YAGCL[T any] interface {
 // global instance accessible via Global().
 func New[T any]() YAGCL[T] {
 	return &yagclImpl[T]{
-		keyTags: []string{DefaultKeyTagName},
+		keyTags: []KeyTag{{Name: DefaultKeyTagName}},
 	}
 }
 
@@ -109,7 +119,7 @@ func (y *yagclImpl[T]) InferFieldKeys() YAGCL[T] {
 	return y
 }
 
-func (y *yagclImpl[T]) AdditionalKeyTags(tags ...string) YAGCL[T] {
+func (y *yagclImpl[T]) AdditionalKeyTags(tags ...KeyTag) YAGCL[T] {
 	y.keyTags = append(y.keyTags, tags...)
 	return y
 }
@@ -160,8 +170,11 @@ func (y *yagclImpl[T]) IncludeField(structField reflect.StructField) bool {
 
 func (y *yagclImpl[T]) ExtractFieldKey(structField reflect.StructField) string {
 	for _, keyTag := range y.keyTags {
-		tagName, isSet := structField.Tag.Lookup(keyTag)
+		tagName, isSet := structField.Tag.Lookup(keyTag.Name)
 		if isSet && tagName != "" {
+			if keyTag.Parser != nil {
+				return keyTag.Parser(tagName)
+			}
 			return tagName
 		}
 	}

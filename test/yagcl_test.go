@@ -159,7 +159,24 @@ func Test_Parse_AdditionalKeyTags(t *testing.T) {
 	err := yagcl.
 		New[config]().
 		Add(&dummySource{}).
-		AdditionalKeyTags("kek").
+		AdditionalKeyTags(yagcl.KeyTag{Name: "kek"}).
+		Parse(&c)
+	if assert.NoError(t, err) {
+		assert.Equal(t, "oof", c.Field)
+	}
+}
+
+func Test_Parse_AdditionalKeyTags_CustomParser(t *testing.T) {
+	type config struct {
+		Field string `kek:"oof,lol"`
+	}
+	var c config
+	err := yagcl.
+		New[config]().
+		Add(&dummySource{}).
+		AdditionalKeyTags(yagcl.KeyTag{Name: "kek", Parser: func(s string) string {
+			return strings.TrimRight(s, ",lol")
+		}}).
 		Parse(&c)
 	if assert.NoError(t, err) {
 		assert.Equal(t, "oof", c.Field)
