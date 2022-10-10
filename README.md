@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl)
 [![Build and Tests](https://github.com/Bios-Marcel/yagcl/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/Bios-Marcel/yagcl/actions/workflows/test.yml)
 
-This libraries aim is to provide a powerful and dynamic way to provide
+This library aims to provide a powerful and dynamic way to provide
 configuration for your application.
 
 ## Why
@@ -44,7 +44,7 @@ Also check out the [Roadmap](#roadmap) for more detailed information.
 
 This library is separated into multiple modules. The main module and additional
 modules for each supported source. This allows you to only specify certain
-sources in your go-mod, keeping your dependency tree small. Additionally it
+sources in your `go.mod`, keeping your dependency tree small. Additionally it
 makes navigating the code base easier.
 
 If you wish to contribute a new source, please create a corresponding
@@ -52,7 +52,7 @@ submodule.
 
 ## Examples
 
-An example configuration usage may look something like this:
+An example usage may look something like this:
 
 ```go
 import (
