@@ -35,8 +35,8 @@ type Configuration struct {
 | --------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Main                  | [You are here already!](https://github.com/Bios-Marcel/yagcl) | [![Go Reference yagcl package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl)          | WIP     | [![codecoverage main package](https://codecov.io/gh/Bios-Marcel/yagcl/branch/master/graph/badge.svg?token=BPGE55G1AX)](https://codecov.io/gh/Bios-Marcel/yagcl)           |
 | Environment Variables | [GitHub](https://github.com/Bios-Marcel/yagcl-env)            | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-env)    | WIP     | [![codecoverage env package](https://codecov.io/gh/Bios-Marcel/yagcl-env/branch/master/graph/badge.svg?token=82SUL3UD8H)](https://codecov.io/gh/Bios-Marcel/yagcl-env)    |
+| .env                  | [GitHub](https://github.com/Bios-Marcel/yagcl-env)            | [![Go Reference env package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-env.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-env)    | WIP     | [![codecoverage env package](https://codecov.io/gh/Bios-Marcel/yagcl-env/branch/master/graph/badge.svg?token=82SUL3UD8H)](https://codecov.io/gh/Bios-Marcel/yagcl-env)    |
 | JSON                  | [GitHub](https://github.com/Bios-Marcel/yagcl-json)           | [![Go Reference json package](https://pkg.go.dev/badge/github.com/Bios-Marcel/yagcl-json.svg)](https://pkg.go.dev/github.com/Bios-Marcel/yagcl-json) | WIP     | [![codecoverage json package](https://codecov.io/gh/Bios-Marcel/yagcl-json/branch/master/graph/badge.svg?token=6Z45XN9GKZ)](https://codecov.io/gh/Bios-Marcel/yagcl-json) |
-| .env                  | -                                                             | -                                                                                                                                                    | Planned | -                                                                                                                                                                         |
 
 Also check out the [Roadmap](#roadmap) for more detailed information.
 
@@ -98,7 +98,7 @@ func LoadConfig() error {
         New[Configuration]()
         //This allows ordering when using override, so you can have something like this.
         Add(yagcl_json.Source().Path("/etc/myapp/config.json").Must()).
-        Add(yagcl_env.Source().Prefix("MY_APP_")).
+        Add(yagcl_env.Source().Env().Prefix("MY_APP_")).
         Add(yagcl_json.Source().Path("~/.config/config.json")).
         AllowOverride().
         Parse(&configuration)
@@ -183,7 +183,7 @@ go get github.com/Bios-Marcel/yagcl-env
       - [ ] map
       - [ ] struct
     - [ ] map
-- [ ] Read .env files
+- [x] Read .env files
   > Will share code with environment variables and should have the same progression.
 
 ## Non Goals
